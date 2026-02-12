@@ -208,6 +208,7 @@ Status legend:
 - Implementation:
   - `ScenarioInput`
   - `build_scenario_features()` in `src/simulation.py`.
+  - fallback-source diagnostics in `estimate_scenario_defaults_with_meta()` and confidence mapping via `prior_confidence_label()`.
 
 ### 6.3 Implement Basic UI
 
@@ -279,9 +280,9 @@ Status legend:
 
 ## Immediate Next Iteration (High Leverage)
 
-1. Add venue/city fallback hierarchy diagnostics to explain when priors use lower-confidence tiers.
+1. Extend fallback diagnostics from venue tiers to venue -> city -> global hierarchy.
 2. Expand local explainability into 5-10 curated upset case narratives with short commentary.
-3. Create `notebooks/99_final_story.ipynb` as the portfolio-ready end-to-end narrative.
+3. Polish `notebooks/99_final_story.ipynb` with final charts and concise written insights.
 4. Add final README product visuals (screenshots/GIF) and a concise results table.
 
 ---
@@ -325,6 +326,7 @@ Status legend:
 - 2026-02-12: Added scripted data quality regeneration command (`scripts/run_data_quality.py`) and tests.
 - 2026-02-12: Added scenario delta narrative and matchup volatility radar to Streamlit app.
 - 2026-02-12: Added `notebooks/99_final_story.ipynb` MVP narrative scaffold.
+- 2026-02-12: Added priors source-tier diagnostics and confidence labels for simulator defaults.
 
 ---
 
@@ -334,4 +336,44 @@ Status legend:
 - Add venue fallback tiers (venue -> city -> global priors) for unseen stadiums.
 - Add stage-aware thresholding for upset alerts.
 - Add lightweight report export for scenario comparisons.
+
+---
+
+## Asana Subtasks: MVP Iteration Queue
+
+### Section 6 - Strategy Simulator Enhancements
+
+- **Task: 6.5 Priors Transparency and Confidence**
+  - Subtask: Show fallback source tier (`matchup_venue`, `matchup`, `venue`, `global`) in Streamlit.
+  - Subtask: Display confidence label (`high`/`medium`/`low`) next to priors source.
+  - Subtask: Extend logic to include `city` tier between `venue` and `global`.
+  - Subtask: Add tests for source-tier selection order and confidence labels.
+
+- **Task: 6.6 Scenario Export and Auditability**
+  - Subtask: Add one-click export of scenario comparison table to CSV.
+  - Subtask: Add JSON export including full scenario inputs and model outputs.
+  - Subtask: Include timestamp + model artifact metadata in export.
+  - Subtask: Add brief export usage note in README.
+
+- **Task: 6.7 Upset Watchlist Panel**
+  - Subtask: Build a ranking view for high-upset-risk matchups from sampled scenarios.
+  - Subtask: Include volatility index and upset risk together in watchlist scoring.
+  - Subtask: Add stage filter (group/knockout) and venue filter.
+  - Subtask: Add simple interpretation text for top 3 watchlist entries.
+
+### Section 5 - Explainability Content Completion
+
+- **Task: 5.4 Curated Upset Narratives**
+  - Subtask: Select 5-10 notable upsets by ELO gap and context diversity.
+  - Subtask: Add short narrative for each case (why upset likelihood rose).
+  - Subtask: Add one counterfactual table per case in notebook.
+  - Subtask: Summarize cross-case patterns.
+
+### Section 7 - Portfolio Polish
+
+- **Task: 7.4 MVP Presentation Assets**
+  - Subtask: Capture Streamlit screenshot set and one short GIF walkthrough.
+  - Subtask: Add README model card (data window, split policy, calibration, limits).
+  - Subtask: Add concise results summary table in README.
+  - Subtask: Final QA pass on docs for consistency with tracker statuses.
 

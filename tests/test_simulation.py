@@ -7,8 +7,10 @@ from src.simulation import (
     _get_venue_rows,
     build_upset_alert,
     estimate_scenario_defaults,
+    estimate_scenario_defaults_with_meta,
     get_stage_alert_threshold,
     normalize_matchup_rows,
+    prior_confidence_label,
 )
 
 
@@ -131,4 +133,29 @@ def test_stage_alert_thresholds_and_levels() -> None:
 
     alert = build_upset_alert(upset_risk=0.35, stage="Semi Final")
     assert alert["level"] in {"high", "medium"}
+
+
+def test_estimate_scenario_defaults_with_meta_tiers() -> None:
+    df = pd.DataFrame(
+        [
+            {"team1": "TeamA", "team2": "TeamB", "venue": "Venue1", "match_stage": "Group", "toss_decision": "bat", "elo_team1": 2000.0, "elo_team2": 1000.0, "team1_form_5": 0.95, "team2_form_5": 0.05, "team1_form_10": 0.9, "team2_form_10": 0.1, "h2h_win_pct": 0.99},
+            {"team1": "TeamA", "team2": "TeamB", "venue": "Venue2", "match_stage": "Group", "toss_decision": "field", "elo_team1": 1500.0, "elo_team2": 1500.0, "team1_form_5": 0.5, "team2_form_5": 0.5, "team1_form_10": 0.5, "team2_form_10": 0.5, "h2h_win_pct": 0.5},
+            {"team1": "TeamX", "team2": "TeamY", "venue": "Venue1", "match_stage": "Group", "toss_decision": "bat", "elo_team1": 1200.0, "elo_team2": 1800.0, "team1_form_5": 0.2, "team2_form_5": 0.8, "team1_form_10": 0.3, "team2_form_10": 0.7, "h2h_win_pct": 0.2},
+        ]
+    )
+    meta_matchup_venue = estimate_scenario_defaults_with_meta(df, "TeamA", "TeamB", "Venue1")
+    assert meta_matchup_venue["source_tier"] == "matchup_venue"
+
+    meta_matchup = estimate_scenario_defaults_with_meta(df[df["venue"] != "Venue1"], "TeamA", "TeamB", "Venue1")
+    assert meta_matchup["source_tier"] == "matchup"
+
+    meta_venue = estimate_scenario_defaults_with_meta(df[df["team1"] != "TeamA"], "TeamA", "TeamB", "Venue1")
+    assert meta_venue["source_tier"] == "venue"
+
+
+def test_prior_confidence_label_mapping() -> None:
+    assert prior_confidence_label("matchup_venue") == "high"
+    assert prior_confidence_label("matchup") == "medium"
+    assert prior_confidence_label("venue") == "medium"
+    assert prior_confidence_label("global") == "low"
 

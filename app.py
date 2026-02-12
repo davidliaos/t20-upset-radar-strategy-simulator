@@ -26,7 +26,8 @@ from src.simulation import (
     ScenarioInput,
     build_scenario_features,
     build_upset_alert,
-    estimate_scenario_defaults,
+    estimate_scenario_defaults_with_meta,
+    prior_confidence_label,
     score_scenario,
 )
 
@@ -74,8 +75,15 @@ def main() -> None:
         team2 = st.selectbox("Team 2", options=team2_options, index=0)
         venue = st.selectbox("Venue", options=venues, index=0)
 
-        defaults = estimate_scenario_defaults(df, team1, team2, venue)
+        defaults_meta = estimate_scenario_defaults_with_meta(df, team1, team2, venue)
+        defaults = defaults_meta["defaults"]
         use_priors = st.checkbox("Use matchup priors for numeric defaults", value=True)
+        source_tier = str(defaults_meta["source_tier"])
+        confidence = prior_confidence_label(source_tier)
+        st.caption(
+            "Priors source: "
+            f"`{source_tier}` ({int(defaults_meta['source_rows'])} rows), confidence `{confidence}`."
+        )
 
         stage_index = stages.index(defaults["match_stage"]) if defaults["match_stage"] in stages else 0
         stage = st.selectbox("Match Stage", options=stages, index=stage_index)

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any, Dict, Tuple
 
 import pandas as pd
 
@@ -168,6 +168,23 @@ def _select_fallback_source(
     return df.copy()
 
 
+def _select_fallback_source_with_tier(
+    df: pd.DataFrame, team1: str, team2: str, venue: str
+) -> Tuple[pd.DataFrame, str]:
+    """Select source rows and report which fallback tier was used."""
+    tiers = [
+        ("matchup_venue", lambda: _get_matchup_venue_rows(df, team1, team2, venue)),
+        ("matchup", lambda: _get_matchup_rows(df, team1, team2)),
+        ("venue", lambda: _get_venue_rows(df, venue)),
+        ("global", lambda: _get_global_rows(df)),
+    ]
+    for tier_name, tier_fn in tiers:
+        source = tier_fn()
+        if not source.empty:
+            return source, tier_name
+    return df.copy(), "global"
+
+
 def estimate_scenario_defaults(df: pd.DataFrame, team1: str, team2: str, venue: str) -> Dict[str, float | str | None]:
     """Estimate robust historical priors for scenario controls.
 
@@ -189,6 +206,32 @@ def estimate_scenario_defaults(df: pd.DataFrame, team1: str, team2: str, venue: 
     defaults = _compute_defaults_from_source(source)
     _clamp_metrics(defaults)
     return defaults
+
+
+def estimate_scenario_defaults_with_meta(
+    df: pd.DataFrame, team1: str, team2: str, venue: str
+) -> Dict[str, Any]:
+    """Estimate priors and include fallback-tier metadata for UI diagnostics."""
+    if df.empty:
+        defaults = estimate_scenario_defaults(df, team1, team2, venue)
+        return {"defaults": defaults, "source_tier": "empty_defaults", "source_rows": 0}
+
+    source, tier = _select_fallback_source_with_tier(df, team1, team2, venue)
+    defaults = _compute_defaults_from_source(source)
+    _clamp_metrics(defaults)
+    return {"defaults": defaults, "source_tier": tier, "source_rows": int(len(source))}
+
+
+def prior_confidence_label(source_tier: str) -> str:
+    """Return a user-facing confidence label for fallback source tiers."""
+    mapping = {
+        "matchup_venue": "high",
+        "matchup": "medium",
+        "venue": "medium",
+        "global": "low",
+        "empty_defaults": "low",
+    }
+    return mapping.get(source_tier, "low")
 
 
 def get_stage_alert_threshold(stage: str | None) -> float:

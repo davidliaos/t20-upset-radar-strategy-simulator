@@ -24,7 +24,9 @@ from .simulation import (
     ScenarioInput,
     build_scenario_features,
     estimate_scenario_defaults,
+    estimate_scenario_defaults_with_meta,
     normalize_matchup_rows,
+    prior_confidence_label,
     score_scenario,
 )
 
@@ -49,6 +51,8 @@ __all__ = [
     "build_scenario_features",
     "normalize_matchup_rows",
     "estimate_scenario_defaults",
+    "estimate_scenario_defaults_with_meta",
+    "prior_confidence_label",
     "score_scenario",
 ]
 
