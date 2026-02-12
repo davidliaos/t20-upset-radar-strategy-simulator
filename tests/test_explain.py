@@ -92,6 +92,8 @@ def test_curated_narratives_and_summary(synthetic_matches_df):
     df["elo_diff"] = [10, -30, 5, -40, 8, -20]
     curated = build_curated_upset_narratives(df, top_n=3)
     assert "narrative" in curated.columns
+    assert "favorite_team" in curated.columns
+    assert curated["favorite_team"].isin(set(df["team1"]).union(set(df["team2"]))).all()
     summaries = summarize_curated_upset_patterns(curated)
     assert "stage_summary" in summaries
     assert "venue_summary" in summaries

@@ -391,6 +391,17 @@ Status legend:
   - Subtask: Add `Upset Severity Index` (underdog probability weighted by ELO gap). (`done`)
   - Subtask: Update comparison table to include underdog and severity metrics. (`done`)
   - Subtask: Add tests to lock semantics for new scenario scoring outputs. (`done`)
+  - Subtask: Add metric explanation expander in Insights tab (`ROC AUC`, `Log Loss`, `Brier`). (`done`)
+  - Subtask: Improve ELO-bucket labels for readability in diagnostics chart/table. (`done`)
+  - Subtask: Add predicted upset chance/severity columns in notable historical upset table. (`done`)
+  - Subtask: Add explicit upset definition and home-advantage note in How-It-Works tab. (`done`)
+
+- **Task: 6.10 Secondary-Agent Review Fixes**
+  - Subtask: Fix curated narrative favorite-team derivation bug. (`done`)
+  - Subtask: Add low-sample warning for priors source rows in sidebar. (`done`)
+  - Subtask: Add upset precision/recall/F1 and confusion matrix to Insights tab. (`done`)
+  - Subtask: Add predicted-vs-observed upset rate by ELO bucket in diagnostics. (`done`)
+  - Subtask: Surface model metadata training timestamp in app header. (`done`)
 
 ### Section 5 - Explainability Content Completion
 

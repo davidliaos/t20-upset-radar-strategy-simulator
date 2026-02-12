@@ -147,6 +147,11 @@ def build_curated_upset_narratives(df: pd.DataFrame, top_n: int = 10) -> pd.Data
         return notable
 
     notable["elo_gap"] = notable["elo_diff"].abs().round(1)
+    # elo_diff is team1 - team2, so non-negative implies team1 was favorite.
+    notable["favorite_team"] = notable.apply(
+        lambda r: r["team1"] if float(r["elo_diff"]) >= 0 else r["team2"],
+        axis=1,
+    )
 
     def _narrative(row: pd.Series) -> str:
         favorite = row.get("favorite_team", "favorite")

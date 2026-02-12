@@ -10,6 +10,7 @@ from typing import Any, TypedDict
 import matplotlib.pyplot as plt
 import pandas as pd
 import streamlit as st
+from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
 
 from src.data_prep import (
     assign_favorite_underdog_from_elo,
@@ -120,6 +121,8 @@ def _build_sidebar_inputs(df: pd.DataFrame, teams: list[str], venues: list[str],
             "Priors source: "
             f"`{source_tier}` ({int(defaults_meta['source_rows'])} rows), confidence `{confidence}`."
         )
+        if int(defaults_meta["source_rows"]) < 10:
+            st.warning("Low historical sample size for priors. Use scenario outputs with caution.")
         use_priors = st.checkbox("Use matchup priors for numeric defaults", value=True)
 
         with st.expander("Match Context", expanded=True):
@@ -163,16 +166,25 @@ def _build_sidebar_inputs(df: pd.DataFrame, teams: list[str], venues: list[str],
 
 
 def _prepare_test_eval(model, test_df: pd.DataFrame) -> pd.DataFrame:
-    test_eval = assign_favorite_underdog_from_elo(test_df.copy())
-    X_test, _ = build_pre_match_feature_frame(test_eval)
-    test_eval["team1_win_prob"] = model.predict_proba(X_test)[:, 1]
-    test_eval["pred_team1_win"] = (test_eval["team1_win_prob"] >= 0.5).astype(int)
-    test_eval["pred_winner"] = test_eval.apply(
+    return _prepare_eval_predictions(model, test_df)
+
+
+def _prepare_eval_predictions(model, eval_df: pd.DataFrame) -> pd.DataFrame:
+    scored = assign_favorite_underdog_from_elo(eval_df.copy())
+    X_eval, _ = build_pre_match_feature_frame(scored)
+    scored["team1_win_prob"] = model.predict_proba(X_eval)[:, 1]
+    scored["team2_win_prob"] = 1.0 - scored["team1_win_prob"]
+    favorite_is_team1 = scored["favorite_team"] == scored["team1"]
+    scored["underdog_win_prob"] = scored["team2_win_prob"].where(favorite_is_team1, scored["team1_win_prob"])
+    elo_gap = (scored["elo_team1"] - scored["elo_team2"]).abs()
+    scored["upset_severity_index"] = scored["underdog_win_prob"] * (elo_gap / 250.0).clip(0.0, 1.0)
+    scored["pred_team1_win"] = (scored["team1_win_prob"] >= 0.5).astype(int)
+    scored["pred_winner"] = scored.apply(
         lambda r: r["team1"] if r["pred_team1_win"] == 1 else r["team2"],
         axis=1,
     )
-    test_eval["pred_is_upset"] = (test_eval["pred_winner"] == test_eval["underdog_team"]).astype(int)
-    return test_eval
+    scored["pred_is_upset"] = (scored["pred_winner"] == scored["underdog_team"]).astype(int)
+    return scored
 
 
 def main() -> None:
@@ -182,9 +194,13 @@ def main() -> None:
 
     model, df, model_source, model_name, model_metadata = get_baseline_model()
     st.caption(f"Model source: {model_source} artifact (`models/baseline_logistic_calibrated.joblib`).")
+    trained_at = model_metadata.get("trained_at_utc")
+    if isinstance(trained_at, str):
+        st.caption(f"Model metadata timestamp (UTC): {trained_at}")
     train_df, valid_df, test_df, X_train, y_train, X_valid, y_valid, X_test, y_test = get_split_data(df)
     _ = (train_df, X_train)  # explicit placeholders for readability.
     test_eval = _prepare_test_eval(model, test_df)
+    full_eval = _prepare_eval_predictions(model, df)
 
     teams = sorted(set(df["team1"]).union(set(df["team2"])))
     venues = sorted(df["venue"].dropna().astype(str).unique().tolist())
@@ -315,6 +331,11 @@ def main() -> None:
         v1.metric("Historical Matchups", f"{int(volatility['matches'])}")
         v2.metric("Historical Upset Rate", f"{volatility['upset_rate']:.1%}")
         v3.metric("Volatility Index", f"{volatility['volatility_index']:.2f}")
+        if volatility["matches"] == 0:
+            st.info(
+                "No direct historical head-to-head rows for this matchup in current data. "
+                "Volatility defaults to 0 for sparse matchups."
+            )
         st.info(
             f"Favorite by ELO proxy: {favorite}. If {underdog} wins, it is labeled as an upset under current MVP definition."
         )
@@ -332,6 +353,24 @@ def main() -> None:
             - **No Leakage Rule**: predictions use only pre-match features.
             """
         )
+        with st.expander("What counts as an upset in this MVP?"):
+            st.markdown(
+                """
+                We label an upset when the pre-match ELO underdog wins.
+
+                - If `elo_team1 >= elo_team2`, Team 1 is favorite and Team 2 is underdog.
+                - If `elo_team1 < elo_team2`, Team 2 is favorite and Team 1 is underdog.
+                - Upset-oriented outputs then track the underdog win chance, not just raw team win chance.
+                """
+            )
+        with st.expander("Home advantage note"):
+            st.markdown(
+                """
+                The dataset does not provide a consistent explicit home/away flag for every match.
+                Current MVP approximates venue effects using historical priors at:
+                matchup-venue, matchup, venue, city, and global levels.
+                """
+            )
         st.subheader("Review Checklist")
         st.markdown(
             """
@@ -351,6 +390,14 @@ def main() -> None:
         m2.metric("Valid Log Loss", f"{valid_metrics['log_loss']:.3f}")
         m3.metric("Test ROC AUC", f"{test_metrics['roc_auc']:.3f}")
         m4.metric("Test Brier", f"{test_metrics['brier']:.3f}")
+        with st.expander("Metric explanations"):
+            st.markdown(
+                """
+                - **ROC AUC**: ranking quality; higher is better (0.5 random, 1.0 perfect).
+                - **Log Loss**: probability calibration + accuracy penalty; lower is better.
+                - **Brier Score**: mean squared error of predicted probabilities; lower is better.
+                """
+            )
 
         st.subheader("Calibration Curve")
         valid_probs = model.predict_proba(X_valid)[:, 1]
@@ -362,16 +409,72 @@ def main() -> None:
         bucket_df = test_eval.copy()
         bucket_df["abs_elo_diff"] = bucket_df["elo_diff"].abs()
         bucket_table = upset_rate_by_bucket(bucket_df, "abs_elo_diff", "is_upset", bins=8)
-        bucket_table["bucket_label"] = bucket_table["bucket"].astype(str)
-        st.bar_chart(bucket_table.set_index("bucket_label")["upset_rate"])
-        st.dataframe(bucket_table[["bucket_label", "upset_rate", "matches"]], use_container_width=True)
+        bucket_table["predicted_upset_rate"] = bucket_table["bucket"].apply(
+            lambda b: float(
+                bucket_df[
+                    bucket_df["abs_elo_diff"].between(float(b.left), float(b.right), inclusive="right")
+                ]["underdog_win_prob"].mean()
+            )
+            if isinstance(b, pd.Interval)
+            else float("nan")
+        )
+        bucket_table["elo_gap_range"] = bucket_table["bucket"].apply(
+            lambda b: f"{int(round(b.left))}-{int(round(b.right))}" if isinstance(b, pd.Interval) else str(b)
+        )
+        st.bar_chart(
+            bucket_table.set_index("elo_gap_range")[["upset_rate", "predicted_upset_rate"]],
+            use_container_width=True,
+        )
+        st.dataframe(
+            bucket_table[["elo_gap_range", "upset_rate", "predicted_upset_rate", "matches"]],
+            use_container_width=True,
+        )
+
+        st.subheader("Upset Classification Diagnostics (Test Window)")
+        upset_precision, upset_recall, upset_f1, _ = precision_recall_fscore_support(
+            test_eval["is_upset"],
+            test_eval["pred_is_upset"],
+            average="binary",
+            zero_division=0,
+        )
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Upset Precision", f"{float(upset_precision):.3f}")
+        c2.metric("Upset Recall", f"{float(upset_recall):.3f}")
+        c3.metric("Upset F1", f"{float(upset_f1):.3f}")
+        cm = confusion_matrix(test_eval["is_upset"], test_eval["pred_is_upset"])
+        st.caption("Confusion matrix rows=true class (no upset/upset), columns=predicted class.")
+        st.dataframe(
+            pd.DataFrame(cm, index=["true_no_upset", "true_upset"], columns=["pred_no_upset", "pred_upset"]),
+            use_container_width=False,
+        )
 
         st.subheader("Notable Historical Upsets")
-        notable = rank_notable_upsets(df, top_n=12)
+        notable = rank_notable_upsets(full_eval, top_n=12).copy()
         if notable.empty:
             st.info("No upset rows found with current filters.")
         else:
-            st.dataframe(notable, use_container_width=True)
+            notable["predicted_upset_chance"] = full_eval.loc[notable.index, "underdog_win_prob"]
+            notable["predicted_upset_severity"] = full_eval.loc[notable.index, "upset_severity_index"]
+            display_cols = [
+                "date",
+                "team1",
+                "team2",
+                "winner",
+                "elo_diff",
+                "predicted_upset_chance",
+                "predicted_upset_severity",
+                "match_stage",
+                "venue",
+            ]
+            st.dataframe(
+                notable[[c for c in display_cols if c in notable.columns]].style.format(
+                    {
+                        "predicted_upset_chance": "{:.1%}",
+                        "predicted_upset_severity": "{:.1%}",
+                    }
+                ),
+                use_container_width=True,
+            )
 
     with tab_explain:
         st.subheader("Local Counterfactual Explanation")
