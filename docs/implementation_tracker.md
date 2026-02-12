@@ -17,7 +17,7 @@ Status legend:
 - Last updated: 2026-02-12
 - Primary UI: Streamlit (`app.py`) with notebook support
 - Data scope (MVP): all available T20 World Cup data in `data/raw/world_cup_last_30_years.csv`
-- Current phase focus: MVP hardening and portfolio polish
+- Current phase focus: MVP completed, presentation polish in progress
 
 ---
 
@@ -176,13 +176,12 @@ Status legend:
 
 ### 5.2 Local Explanations for Famous Upsets
 
-- Status: `partial`
+- Status: `done`
 - Existing:
   - `src/explain.py` with `rank_notable_upsets()` and `build_counterfactual_explanation()`
   - local explanation section added in `notebooks/03_upset_explorer.ipynb`
   - matchup volatility utilities in `src/explain.py` for team-pair risk profiling
-- Remaining:
-  - expand to 5-10 curated historic upset narratives with short writeups.
+  - curated upset narratives and cross-case patterns added to `notebooks/99_final_story.ipynb`.
 
 ### 5.3 Upset Pattern Visualizations
 
@@ -239,8 +238,6 @@ Status legend:
   - [docs/code_conventions.md](code_conventions.md) for development standards.
   - quality commands and pre-commit usage documented in README.
 - Remaining:
-  - add concrete results snapshots once modeling sections are finalized.
-  - keep tracker statuses synced as tasks close.
   - add final MVP demo GIF/screenshots from Streamlit.
 
 ### 7.2 Final Narrative Notebook
@@ -258,10 +255,10 @@ Status legend:
 
 ### 7.3 Reflection and Future Work
 
-- Status: `not_started`
-- Planned outputs:
-  - limitations section in README
-  - future work section in docs.
+- Status: `done`
+- Completed outputs:
+  - limitations section in `README.md`
+  - future-work section in `README.md`
 
 ---
 
@@ -282,10 +279,10 @@ Status legend:
 
 ## Immediate Next Iteration (High Leverage)
 
-1. Expand local explainability into 5-10 curated upset case narratives with short commentary.
-2. Polish `notebooks/99_final_story.ipynb` with final charts and concise written insights.
-3. Add final README product visuals (screenshots/GIF) and a concise results table.
-4. Finalize README model card with calibrated metrics snapshot and limitations.
+1. Add final README product visuals (screenshots/GIF) and a concise results table image.
+2. Do a final narrative polish pass on `notebooks/99_final_story.ipynb` after screenshot capture.
+3. Add a compact changelog block in README linking the latest MVP capabilities.
+4. Final demo run-through of app exports + notebook outputs for handoff.
 
 ---
 
@@ -301,15 +298,13 @@ Status legend:
 
 ### Remaining for MVP ship
 
-- Curate final upset case narratives (5-10 examples) in notebook/docs.
-- Polish `notebooks/99_final_story.ipynb` with final visuals and commentary.
-- Capture Streamlit screenshots/GIF and add to `README.md`.
-- Final documentation pass (limitations + future work + crisp results summary).
+- MVP functionality complete; remaining items are presentation polish only.
+- Capture Streamlit screenshots/GIF and add to `README.md` (portfolio enhancement).
 
 ### MVP confidence
 
-- Status: `high`
-- Estimated effort to ship MVP: `1-2 focused iterations`
+- Status: `completed`
+- Estimated effort to final portfolio polish: `1 focused iteration`
 
 ---
 
@@ -332,6 +327,9 @@ Status legend:
 - 2026-02-12: Added scenario export support (CSV/JSON) with model metadata and timestamps.
 - 2026-02-12: Extended fallback order to include city tier (`matchup_venue -> matchup -> venue -> city -> global`).
 - 2026-02-12: Added compact missed-upsets audit section in `notebooks/99_final_story.ipynb`.
+- 2026-02-12: Added curated upset narratives and cross-case pattern summaries to `notebooks/99_final_story.ipynb`.
+- 2026-02-12: Added README model card, metrics snapshot, and limitations/future work sections.
+- 2026-02-12: Marked MVP as functionally complete; remaining work is presentation assets (screenshots/GIF).
 
 ---
 
@@ -369,16 +367,16 @@ Status legend:
 ### Section 5 - Explainability Content Completion
 
 - **Task: 5.4 Curated Upset Narratives**
-  - Subtask: Select 5-10 notable upsets by ELO gap and context diversity.
-  - Subtask: Add short narrative for each case (why upset likelihood rose).
-  - Subtask: Add one counterfactual table per case in notebook.
-  - Subtask: Summarize cross-case patterns.
+  - Subtask: Select 5-10 notable upsets by ELO gap and context diversity. (`done`)
+  - Subtask: Add short narrative for each case (why upset likelihood rose). (`done`)
+  - Subtask: Add one counterfactual table per case in notebook. (`done`)
+  - Subtask: Summarize cross-case patterns. (`done`)
 
 ### Section 7 - Portfolio Polish
 
 - **Task: 7.4 MVP Presentation Assets**
   - Subtask: Capture Streamlit screenshot set and one short GIF walkthrough.
-  - Subtask: Add README model card (data window, split policy, calibration, limits).
-  - Subtask: Add concise results summary table in README.
-  - Subtask: Final QA pass on docs for consistency with tracker statuses.
+  - Subtask: Add README model card (data window, split policy, calibration, limits). (`done`)
+  - Subtask: Add concise results summary table in README. (`done`)
+  - Subtask: Final QA pass on docs for consistency with tracker statuses. (`done`)
 

@@ -84,6 +84,23 @@ Run all commands from the project root.
 5. Explainability and upset pattern analysis.
 6. Scenario simulator improvements.
 
+## Model Card (MVP)
+
+- Model: calibrated logistic regression (`baseline_logistic_calibrated`)
+- Train/valid/test split policy: strict chronological split from `src/config.py`
+- Input policy: pre-match features only (no post-match leakage fields)
+- Calibration: sigmoid calibration on validation set (`CalibratedClassifierCV`)
+- Primary use: scenario-level probability guidance and upset-risk exploration (not betting advice)
+
+### Current Metrics Snapshot
+
+Source: `data/processed/baseline_logistic_calibrated_metrics.json`
+
+| Split | ROC AUC | Log Loss | Brier | Predicted Positive Rate |
+|---|---:|---:|---:|---:|
+| Validation | 0.6320 | 0.6646 | 0.2362 | 0.3972 |
+| Test | 0.6399 | 0.6681 | 0.2377 | 0.4021 |
+
 ## Upset Definition (MVP)
 
 For each match, the favorite is the side with stronger pre-match rating proxy (initially ELO). A match is labeled `is_upset = 1` when the underdog wins.
@@ -97,4 +114,16 @@ See [docs/code_conventions.md](docs/code_conventions.md) for module boundaries, 
 - Only pre-match variables are allowed in model features.
 - Time-based train/validation/test splits are mandatory.
 - Post-match outcome fields (result margins, innings outcomes, etc.) are excluded from prediction features.
+
+## Limitations and Future Work
+
+Limitations:
+- Current model family is intentionally simple (logistic baseline) for interpretability-first MVP.
+- Team-level and venue-level proxies are used; no player-level or ball-by-ball context yet.
+- Rare-event upsets remain difficult, especially for extreme outlier matches.
+
+Future work:
+- Add a boosted model comparison artifact and tracked report against the baseline.
+- Add curated 5-10 upset deep-dives with richer counterfactual narratives.
+- Extend simulator with watchlist ranking and stronger venue/city condition features.
 
