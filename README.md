@@ -101,6 +101,18 @@ Source: `data/processed/baseline_logistic_calibrated_metrics.json`
 | Validation | 0.6320 | 0.6646 | 0.2362 | 0.3972 |
 | Test | 0.6399 | 0.6681 | 0.2377 | 0.4021 |
 
+## MVP Capability Changelog
+
+- Stage-aware upset alerting in simulator output.
+- Scenario comparison deltas and matchup volatility radar.
+- Priors confidence diagnostics with fallback tiers (including city tier).
+- Scenario export workflow (CSV + JSON) with model metadata and timestamps.
+- Final narrative notebook with missed-upsets audit and curated upset stories.
+
+## App Screenshot
+
+![T20 Upset Radar Streamlit MVP](docs/assets/streamlit_mvp_main.png)
+
 ## Upset Definition (MVP)
 
 For each match, the favorite is the side with stronger pre-match rating proxy (initially ELO). A match is labeled `is_upset = 1` when the underdog wins.

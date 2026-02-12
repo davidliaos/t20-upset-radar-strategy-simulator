@@ -238,7 +238,7 @@ Status legend:
   - [docs/code_conventions.md](code_conventions.md) for development standards.
   - quality commands and pre-commit usage documented in README.
 - Remaining:
-  - add final MVP demo GIF/screenshots from Streamlit.
+  - add final MVP demo GIF from Streamlit (screenshot now added in README).
 
 ### 7.2 Final Narrative Notebook
 
@@ -299,7 +299,7 @@ Status legend:
 ### Remaining for MVP ship
 
 - MVP functionality complete; remaining items are presentation polish only.
-- Capture Streamlit screenshots/GIF and add to `README.md` (portfolio enhancement).
+- Capture Streamlit GIF and add to `README.md` (screenshot already added).
 
 ### MVP confidence
 
@@ -330,6 +330,7 @@ Status legend:
 - 2026-02-12: Added curated upset narratives and cross-case pattern summaries to `notebooks/99_final_story.ipynb`.
 - 2026-02-12: Added README model card, metrics snapshot, and limitations/future work sections.
 - 2026-02-12: Marked MVP as functionally complete; remaining work is presentation assets (screenshots/GIF).
+- 2026-02-12: Captured and added Streamlit MVP screenshot to `README.md`.
 
 ---
 
@@ -375,7 +376,7 @@ Status legend:
 ### Section 7 - Portfolio Polish
 
 - **Task: 7.4 MVP Presentation Assets**
-  - Subtask: Capture Streamlit screenshot set and one short GIF walkthrough.
+  - Subtask: Capture Streamlit screenshot set and one short GIF walkthrough. (`partial`: screenshot done, GIF pending)
   - Subtask: Add README model card (data window, split policy, calibration, limits). (`done`)
   - Subtask: Add concise results summary table in README. (`done`)
   - Subtask: Final QA pass on docs for consistency with tracker statuses. (`done`)
