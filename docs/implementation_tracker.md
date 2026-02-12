@@ -14,10 +14,10 @@ Status legend:
 
 ## Project Snapshot
 
-- Last updated: 2026-02-11
+- Last updated: 2026-02-12
 - Primary UI: Streamlit (`app.py`) with notebook support
 - Data scope (MVP): all available T20 World Cup data in `data/raw/world_cup_last_30_years.csv`
-- Current phase focus: unique product depth (stage-aware alerts + local upset explanations)
+- Current phase focus: MVP hardening and portfolio polish
 
 ---
 
@@ -180,6 +180,7 @@ Status legend:
 - Existing:
   - `src/explain.py` with `rank_notable_upsets()` and `build_counterfactual_explanation()`
   - local explanation section added in `notebooks/03_upset_explorer.ipynb`
+  - matchup volatility utilities in `src/explain.py` for team-pair risk profiling
 - Remaining:
   - expand to 5-10 curated historic upset narratives with short writeups.
 
@@ -221,6 +222,8 @@ Status legend:
 - Implementation:
   - side-by-side toss decision comparison in `app.py`.
   - stage-aware upset alert severity with threshold messaging in `app.py`.
+  - explicit scenario delta narrative (alternative vs current probabilities).
+  - matchup volatility radar (history count, upset rate, volatility index).
 
 ---
 
@@ -236,12 +239,16 @@ Status legend:
 - Remaining:
   - add concrete results snapshots once modeling sections are finalized.
   - keep tracker statuses synced as tasks close.
+  - add final MVP demo GIF/screenshots from Streamlit.
 
 ### 7.2 Final Narrative Notebook
 
-- Status: `not_started`
+- Status: `in_progress`
 - Planned artifact:
   - `notebooks/99_final_story.ipynb` (or similarly named final report notebook).
+- Remaining:
+  - assemble storyline from data audit -> modeling -> explainability -> simulator.
+  - include concise conclusions and limitations.
 
 ### 7.3 Reflection and Future Work
 
@@ -270,9 +277,33 @@ Status legend:
 ## Immediate Next Iteration (High Leverage)
 
 1. Add venue/city fallback hierarchy diagnostics to explain when priors use lower-confidence tiers.
-2. Build a "what changed upset risk" mini-report in app for scenario A vs B comparisons.
-3. Expand local explainability section into a portfolio-ready narrative notebook.
-4. Add matchup-cluster analytics to identify consistently volatile team pairs.
+2. Expand local explainability into 5-10 curated upset case narratives with short commentary.
+3. Create `notebooks/99_final_story.ipynb` as the portfolio-ready end-to-end narrative.
+4. Add final README product visuals (screenshots/GIF) and a concise results table.
+
+---
+
+## MVP Countdown (Can Ship Soon)
+
+### Done now
+
+- End-to-end pipeline exists (`src/`, scripts, tests, CI, conventions).
+- Time-aware modeling and calibration are implemented and validated.
+- Streamlit simulator supports scenario comparison and stage-aware upset alerts.
+- Explainability includes global SHAP flow and local counterfactual tooling.
+- Data quality reporting is reproducible (`scripts/run_data_quality.py`).
+
+### Remaining for MVP ship
+
+- Curate final upset case narratives (5-10 examples) in notebook/docs.
+- Build and polish `notebooks/99_final_story.ipynb`.
+- Capture Streamlit screenshots/GIF and add to `README.md`.
+- Final documentation pass (limitations + future work + crisp results summary).
+
+### MVP confidence
+
+- Status: `high`
+- Estimated effort to ship MVP: `1-2 focused iterations`
 
 ---
 
@@ -289,6 +320,7 @@ Status legend:
 - 2026-02-12: Added coverage reporting and threshold enforcement in CI/test config.
 - 2026-02-12: Added stage-aware upset alert thresholds and local counterfactual upset explainers.
 - 2026-02-12: Added scripted data quality regeneration command (`scripts/run_data_quality.py`) and tests.
+- 2026-02-12: Added scenario delta narrative and matchup volatility radar to Streamlit app.
 
 ---
 
