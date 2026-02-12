@@ -47,6 +47,7 @@ def _check_required_tests(violations: list[str]) -> None:
         PROJECT_ROOT / "tests" / "test_features.py",
         PROJECT_ROOT / "tests" / "test_models.py",
         PROJECT_ROOT / "tests" / "test_simulation.py",
+        PROJECT_ROOT / "tests" / "test_data_quality.py",
     ]
     for path in required_tests:
         if not path.exists():
@@ -58,6 +59,9 @@ def run_checks() -> int:
     _check_leakage_features(violations)
     _check_required_docs(violations)
     _check_required_tests(violations)
+
+    if not (PROJECT_ROOT / "scripts" / "run_data_quality.py").exists():
+        violations.append("Required script missing: scripts/run_data_quality.py")
 
     if violations:
         print("Conventions check failed:")

@@ -7,6 +7,8 @@ from typing import Any, Dict
 
 import pandas as pd
 
+from .config import DEFAULT_UPSET_ALERT_THRESHOLD, STAGE_UPSET_THRESHOLDS
+
 
 @dataclass
 class ScenarioInput:
@@ -187,4 +189,33 @@ def estimate_scenario_defaults(df: pd.DataFrame, team1: str, team2: str, venue: 
     defaults = _compute_defaults_from_source(source)
     _clamp_metrics(defaults)
     return defaults
+
+
+def get_stage_alert_threshold(stage: str | None) -> float:
+    """Return an upset-alert threshold adjusted by match stage label."""
+    if not stage:
+        return DEFAULT_UPSET_ALERT_THRESHOLD
+    stage_key = str(stage).strip().lower()
+    for key, threshold in STAGE_UPSET_THRESHOLDS.items():
+        if key in stage_key:
+            return threshold
+    return DEFAULT_UPSET_ALERT_THRESHOLD
+
+
+def build_upset_alert(upset_risk: float, stage: str | None) -> Dict[str, float | str]:
+    """Classify upset alert severity based on stage-aware thresholds."""
+    threshold = get_stage_alert_threshold(stage)
+    medium = min(threshold + 0.07, 0.49)
+
+    if upset_risk >= medium:
+        level = "high"
+        message = "High upset alert: conditions are favorable for a surprise result."
+    elif upset_risk >= threshold:
+        level = "medium"
+        message = "Moderate upset alert: underdog path is plausible."
+    else:
+        level = "low"
+        message = "Low upset alert: outcome aligns more with expected favorite edge."
+
+    return {"level": level, "message": message, "threshold": threshold}
 

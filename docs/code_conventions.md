@@ -8,6 +8,7 @@ Practical standards for the T20 Upset Radar project. Keep these concise and acti
 - **`src/features.py`**: Pre-match feature frame construction. No model training.
 - **`src/models.py`**: Preprocessing, training, calibration, evaluation, artifact I/O.
 - **`src/simulation.py`**: Scenario inputs → model-ready features, scoring.
+- **`src/explain.py`**: Local/global explanation utilities and counterfactual narratives.
 - **`src/viz.py`**: Plotting and visualization helpers.
 
 Import from `src` in notebooks and `app.py`; avoid cross-module cycles.

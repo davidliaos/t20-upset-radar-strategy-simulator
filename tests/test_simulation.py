@@ -5,7 +5,9 @@ from src.simulation import (
     _get_matchup_rows,
     _get_matchup_venue_rows,
     _get_venue_rows,
+    build_upset_alert,
     estimate_scenario_defaults,
+    get_stage_alert_threshold,
     normalize_matchup_rows,
 )
 
@@ -120,4 +122,13 @@ def test_fallback_prefers_matchup_venue_then_matchup_then_venue() -> None:
 
     defaults_venue = estimate_scenario_defaults(df[df["team1"] != "TeamA"], "TeamA", "TeamB", "Venue1")
     assert defaults_venue["elo_team1"] == 1200.0
+
+
+def test_stage_alert_thresholds_and_levels() -> None:
+    semi_t = get_stage_alert_threshold("Semi Final")
+    group_t = get_stage_alert_threshold("Group Stage")
+    assert semi_t < group_t
+
+    alert = build_upset_alert(upset_risk=0.35, stage="Semi Final")
+    assert alert["level"] in {"high", "medium"}
 

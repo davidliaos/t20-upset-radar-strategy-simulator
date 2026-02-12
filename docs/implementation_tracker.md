@@ -17,7 +17,7 @@ Status legend:
 - Last updated: 2026-02-11
 - Primary UI: Streamlit (`app.py`) with notebook support
 - Data scope (MVP): all available T20 World Cup data in `data/raw/world_cup_last_30_years.csv`
-- Current phase focus: quality enforcement + data quality closure
+- Current phase focus: unique product depth (stage-aware alerts + local upset explanations)
 
 ---
 
@@ -176,9 +176,12 @@ Status legend:
 
 ### 5.2 Local Explanations for Famous Upsets
 
-- Status: `not_started`
-- Next output:
-  - notebook section for 5-10 notable upsets with local explanations.
+- Status: `partial`
+- Existing:
+  - `src/explain.py` with `rank_notable_upsets()` and `build_counterfactual_explanation()`
+  - local explanation section added in `notebooks/03_upset_explorer.ipynb`
+- Remaining:
+  - expand to 5-10 curated historic upset narratives with short writeups.
 
 ### 5.3 Upset Pattern Visualizations
 
@@ -217,6 +220,7 @@ Status legend:
 - Status: `done`
 - Implementation:
   - side-by-side toss decision comparison in `app.py`.
+  - stage-aware upset alert severity with threshold messaging in `app.py`.
 
 ---
 
@@ -265,10 +269,10 @@ Status legend:
 
 ## Immediate Next Iteration (High Leverage)
 
-1. Implement local explainability notebooks for notable upset matches.
-2. Add stage-aware upset alert thresholds to simulator output.
-3. Add scripted data quality regeneration command and notebook synchronization.
-4. Publish and push the repository with workflow-scoped GitHub auth.
+1. Add venue/city fallback hierarchy diagnostics to explain when priors use lower-confidence tiers.
+2. Build a "what changed upset risk" mini-report in app for scenario A vs B comparisons.
+3. Expand local explainability section into a portfolio-ready narrative notebook.
+4. Add matchup-cluster analytics to identify consistently volatile team pairs.
 
 ---
 
@@ -283,6 +287,8 @@ Status legend:
 - 2026-02-12: Added lint/type/conventions enforcement (`ruff`, `mypy`, `pre-commit`, conventions script).
 - 2026-02-12: Completed quantitative data quality audit and documented findings in `docs/data_quality.md`.
 - 2026-02-12: Added coverage reporting and threshold enforcement in CI/test config.
+- 2026-02-12: Added stage-aware upset alert thresholds and local counterfactual upset explainers.
+- 2026-02-12: Added scripted data quality regeneration command (`scripts/run_data_quality.py`) and tests.
 
 ---
 

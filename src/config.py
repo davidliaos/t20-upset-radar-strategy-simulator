@@ -16,6 +16,17 @@ RANDOM_SEED = 42
 TRAIN_END_YEAR = 2021
 VALID_END_YEAR = 2023
 
+# Stage-sensitive upset alert thresholds (higher threshold for group stages).
+STAGE_UPSET_THRESHOLDS = {
+    "group": 0.28,
+    "super": 0.30,
+    "qualifier": 0.27,
+    "semi": 0.23,
+    "final": 0.21,
+    "knockout": 0.24,
+}
+DEFAULT_UPSET_ALERT_THRESHOLD = 0.26
+
 # Core fields expected from the source dataset.
 EXPECTED_COLUMNS = [
     "date",

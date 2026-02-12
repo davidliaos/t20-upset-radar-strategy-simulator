@@ -54,6 +54,8 @@ Run all commands from the project root.
    - `python scripts/check_conventions.py`
 8. Run tests with coverage:
    - `pytest --cov=src --cov=scripts --cov-report=term-missing --cov-fail-under=70`
+9. Regenerate data quality report:
+   - `python scripts/run_data_quality.py`
 
 ## Automation
 

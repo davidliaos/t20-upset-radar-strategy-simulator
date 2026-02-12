@@ -24,6 +24,7 @@ from src.models import (
 from src.simulation import (
     ScenarioInput,
     build_scenario_features,
+    build_upset_alert,
     estimate_scenario_defaults,
     score_scenario,
 )
@@ -122,6 +123,14 @@ def main() -> None:
     col1.metric(f"{team1} Win Probability", f"{result['team1_win_prob']:.1%}")
     col2.metric(f"{team2} Win Probability", f"{result['team2_win_prob']:.1%}")
     col3.metric("Upset Risk", f"{result['upset_risk']:.1%}")
+
+    alert = build_upset_alert(result["upset_risk"], stage)
+    if alert["level"] == "high":
+        st.error(f"{alert['message']} (threshold: {alert['threshold']:.0%})")
+    elif alert["level"] == "medium":
+        st.warning(f"{alert['message']} (threshold: {alert['threshold']:.0%})")
+    else:
+        st.success(f"{alert['message']} (threshold: {alert['threshold']:.0%})")
 
     st.subheader("Scenario Comparison")
     alt_decision = "field" if toss_decision == "bat" else "bat"
