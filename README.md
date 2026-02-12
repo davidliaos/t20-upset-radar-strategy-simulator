@@ -52,6 +52,8 @@ Run all commands from the project root.
    - `ruff check .`
    - `mypy src scripts app.py`
    - `python scripts/check_conventions.py`
+8. Run tests with coverage:
+   - `pytest --cov=src --cov=scripts --cov-report=term-missing --cov-fail-under=70`
 
 ## Automation
 

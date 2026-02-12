@@ -265,10 +265,10 @@ Status legend:
 
 ## Immediate Next Iteration (High Leverage)
 
-1. Add coverage reporting to CI (pytest coverage output + threshold).
-2. Implement local explainability notebooks for notable upset matches.
-3. Add stage-aware upset alert thresholds to simulator output.
-4. Add scripted data quality regeneration command and notebook synchronization.
+1. Implement local explainability notebooks for notable upset matches.
+2. Add stage-aware upset alert thresholds to simulator output.
+3. Add scripted data quality regeneration command and notebook synchronization.
+4. Publish and push the repository with workflow-scoped GitHub auth.
 
 ---
 
@@ -282,6 +282,7 @@ Status legend:
 - 2026-02-12: Added data-driven simulator defaults using historical matchup priors.
 - 2026-02-12: Added lint/type/conventions enforcement (`ruff`, `mypy`, `pre-commit`, conventions script).
 - 2026-02-12: Completed quantitative data quality audit and documented findings in `docs/data_quality.md`.
+- 2026-02-12: Added coverage reporting and threshold enforcement in CI/test config.
 
 ---
 

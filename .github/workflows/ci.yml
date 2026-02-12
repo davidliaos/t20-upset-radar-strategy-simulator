@@ -39,5 +39,5 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest -q
+          pytest -q --cov=src --cov=scripts --cov-report=term-missing --cov-fail-under=70
 
