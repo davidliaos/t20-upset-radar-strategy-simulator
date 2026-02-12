@@ -1,6 +1,10 @@
 import pandas as pd
 
-from src.explain import build_counterfactual_explanation, rank_notable_upsets
+from src.explain import (
+    build_counterfactual_explanation,
+    matchup_volatility_profile,
+    rank_notable_upsets,
+)
 from src.models import train_logistic_baseline
 
 
@@ -57,4 +61,13 @@ def test_counterfactual_explanation_returns_effects():
     assert "base_team1_win_prob" in explanation
     assert "counterfactuals" in explanation
     assert len(explanation["counterfactuals"]) >= 2
+
+
+def test_matchup_volatility_profile_returns_expected_range(synthetic_matches_df):
+    df = synthetic_matches_df.copy()
+    df["is_upset"] = [0, 1, 0, 1, 0, 1]
+    profile = matchup_volatility_profile(df, "TeamA", "TeamB")
+    assert profile["matches"] >= 1
+    assert 0.0 <= profile["upset_rate"] <= 1.0
+    assert 0.0 <= profile["volatility_index"] <= 1.0
 

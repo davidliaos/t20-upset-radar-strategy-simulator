@@ -7,7 +7,11 @@ from .data_prep import (
     time_based_split,
 )
 from .data_quality import build_data_quality_report, save_data_quality_report
-from .explain import build_counterfactual_explanation, rank_notable_upsets
+from .explain import (
+    build_counterfactual_explanation,
+    matchup_volatility_profile,
+    rank_notable_upsets,
+)
 from .features import add_context_interactions, build_pre_match_feature_frame
 from .models import (
     calibrate_classifier,
@@ -35,6 +39,7 @@ __all__ = [
     "save_data_quality_report",
     "rank_notable_upsets",
     "build_counterfactual_explanation",
+    "matchup_volatility_profile",
     "calibrate_classifier",
     "evaluate_binary_model",
     "save_model_artifacts",

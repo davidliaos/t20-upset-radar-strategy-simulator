@@ -90,3 +90,27 @@ def build_counterfactual_explanation(
         "counterfactuals": [cf.__dict__ for cf in cfs_sorted],
     }
 
+
+def matchup_volatility_profile(df: pd.DataFrame, team1: str, team2: str) -> Dict[str, float]:
+    """Estimate volatility and upset tendency for a team matchup."""
+    mask = ((df["team1"] == team1) & (df["team2"] == team2)) | (
+        (df["team1"] == team2) & (df["team2"] == team1)
+    )
+    pair = df.loc[mask].copy()
+    if pair.empty:
+        return {"matches": 0.0, "upset_rate": 0.0, "volatility_index": 0.0}
+
+    # Convert winner to team1-perspective outcome for variance-based volatility.
+    same_order = pair["team1"] == team1
+    team1_win_view = (pair["winner"] == pair["team1"]).where(same_order, pair["winner"] == pair["team2"])
+    team1_win_view = team1_win_view.astype(float)
+    upset_rate = float(pair["is_upset"].mean()) if "is_upset" in pair.columns else 0.0
+
+    # Bernoulli stddev maxes at 0.5; normalize to [0,1].
+    volatility_index = float(team1_win_view.std(ddof=0)) * 2
+    return {
+        "matches": float(len(pair)),
+        "upset_rate": upset_rate,
+        "volatility_index": volatility_index,
+    }
+

@@ -13,6 +13,7 @@ from src.data_prep import (
     load_matches,
     time_based_split,
 )
+from src.explain import matchup_volatility_profile
 from src.features import build_pre_match_feature_frame
 from src.models import (
     build_default_metadata,
@@ -136,6 +137,8 @@ def main() -> None:
     alt_decision = "field" if toss_decision == "bat" else "bat"
     alt_scenario = replace(scenario, toss_decision=alt_decision)
     alt_result = score_scenario(model, build_scenario_features(alt_scenario))
+    delta_team1 = alt_result["team1_win_prob"] - result["team1_win_prob"]
+    delta_upset = alt_result["upset_risk"] - result["upset_risk"]
     comparison_df = pd.DataFrame(
         [
             {"scenario": f"Current ({toss_decision})", "team1_win_prob": result["team1_win_prob"], "upset_risk": result["upset_risk"]},
@@ -143,6 +146,16 @@ def main() -> None:
         ]
     )
     st.dataframe(comparison_df.style.format({"team1_win_prob": "{:.1%}", "upset_risk": "{:.1%}"}), use_container_width=True)
+    st.caption(
+        f"Scenario delta (alternative - current): team1 win {delta_team1:+.1%}, upset risk {delta_upset:+.1%}."
+    )
+
+    volatility = matchup_volatility_profile(df, team1, team2)
+    st.subheader("Matchup Volatility Radar")
+    v1, v2, v3 = st.columns(3)
+    v1.metric("Historical Matchups", f"{int(volatility['matches'])}")
+    v2.metric("Historical Upset Rate", f"{volatility['upset_rate']:.1%}")
+    v3.metric("Volatility Index", f"{volatility['volatility_index']:.2f}")
 
     st.info(
         f"Favorite by ELO proxy: {favorite}. If {underdog} wins, it is labeled as an upset under current MVP definition."
