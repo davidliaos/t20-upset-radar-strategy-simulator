@@ -9,8 +9,11 @@ from .data_prep import (
 from .data_quality import build_data_quality_report, save_data_quality_report
 from .explain import (
     build_counterfactual_explanation,
+    build_curated_upset_narratives,
+    build_missed_upsets_audit,
     matchup_volatility_profile,
     rank_notable_upsets,
+    summarize_curated_upset_patterns,
 )
 from .features import add_context_interactions, build_pre_match_feature_frame
 from .models import (
@@ -41,6 +44,9 @@ __all__ = [
     "build_data_quality_report",
     "save_data_quality_report",
     "rank_notable_upsets",
+    "build_missed_upsets_audit",
+    "build_curated_upset_narratives",
+    "summarize_curated_upset_patterns",
     "build_counterfactual_explanation",
     "matchup_volatility_profile",
     "calibrate_classifier",

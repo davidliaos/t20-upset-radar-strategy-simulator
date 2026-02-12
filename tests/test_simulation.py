@@ -15,6 +15,7 @@ from src.simulation import (
     get_stage_alert_threshold,
     normalize_matchup_rows,
     prior_confidence_label,
+    score_scenario,
 )
 
 
@@ -208,4 +209,25 @@ def test_build_scenario_export_payload_shape() -> None:
     assert payload["model"]["name"] == "baseline_logistic_calibrated"
     assert payload["priors"]["confidence"] == "medium"
     assert len(payload["scenarios"]) == 2
+
+
+def test_score_scenario_has_underdog_and_severity_metrics() -> None:
+    class DummyModel:
+        def predict_proba(self, feature_row):
+            _ = feature_row
+            return [[0.35, 0.65]]
+
+    feature_row = pd.DataFrame(
+        [
+            {
+                "elo_team1": 1700.0,
+                "elo_team2": 1500.0,
+            }
+        ]
+    )
+    scored = score_scenario(DummyModel(), feature_row)
+    assert "underdog_win_prob" in scored
+    assert "upset_severity_index" in scored
+    assert abs(scored["underdog_win_prob"] - 0.35) < 1e-9
+    assert 0.0 <= scored["upset_severity_index"] <= scored["underdog_win_prob"]
 

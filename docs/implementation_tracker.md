@@ -18,6 +18,7 @@ Status legend:
 - Primary UI: Streamlit (`app.py`) with notebook support
 - Data scope (MVP): all available T20 World Cup data in `data/raw/world_cup_last_30_years.csv`
 - Current phase focus: MVP completed, presentation polish in progress
+- Current phase focus: deep dashboard redesign and insight UX refinement
 
 ---
 
@@ -211,10 +212,12 @@ Status legend:
 
 ### 6.3 Implement Basic UI
 
-- Status: `done`
+- Status: `in_progress`
 - Implementation:
-  - Streamlit UI in `app.py`.
+  - Streamlit dashboard UI in `app.py` with tabbed navigation.
   - matchup-driven numeric defaults for ELO/form/H2H priors.
+- Remaining:
+  - tune visual hierarchy and spacing for final polish.
 
 ### 6.4 Scenario Comparison View
 
@@ -225,6 +228,16 @@ Status legend:
   - explicit scenario delta narrative (alternative vs current probabilities).
   - matchup volatility radar (history count, upset rate, volatility index).
   - scenario export actions (CSV + JSON) with timestamp and model metadata.
+
+### 6.8 Deep Dashboard IA and Reviewability
+
+- Status: `in_progress`
+- Implementation:
+  - Introduced tabs: Simulator, How It Works, Insights, Explainability.
+  - Added in-app review checklist and output explanation cards.
+  - Added diagnostics and explainability panels for faster human review loops.
+- Remaining:
+  - complete final visual polish and GIF walkthrough capture.
 
 ---
 
@@ -279,10 +292,10 @@ Status legend:
 
 ## Immediate Next Iteration (High Leverage)
 
-1. Add final README product visuals (screenshots/GIF) and a concise results table image.
-2. Do a final narrative polish pass on `notebooks/99_final_story.ipynb` after screenshot capture.
-3. Add a compact changelog block in README linking the latest MVP capabilities.
-4. Final demo run-through of app exports + notebook outputs for handoff.
+1. Finalize dashboard visual polish (spacing, typography, panel balance).
+2. Capture updated dashboard GIF walkthrough after IA redesign.
+3. Run one end-to-end human review pass and collect iteration notes.
+4. Convert review notes into next sprint Asana subtasks.
 
 ---
 
@@ -331,6 +344,7 @@ Status legend:
 - 2026-02-12: Added README model card, metrics snapshot, and limitations/future work sections.
 - 2026-02-12: Marked MVP as functionally complete; remaining work is presentation assets (screenshots/GIF).
 - 2026-02-12: Captured and added Streamlit MVP screenshot to `README.md`.
+- 2026-02-12: Refactored Streamlit into multi-tab dashboard with insights and explainability pages.
 
 ---
 
@@ -364,6 +378,19 @@ Status legend:
   - Subtask: Include volatility index and upset risk together in watchlist scoring.
   - Subtask: Add stage filter (group/knockout) and venue filter.
   - Subtask: Add simple interpretation text for top 3 watchlist entries.
+
+- **Task: 6.8 Dashboard Redesign Sprint**
+  - Subtask: Refactor app into tabs (`Simulator`, `How It Works`, `Insights`, `Explainability`). (`done`)
+  - Subtask: Add diagnostics charts (calibration + upset bucket) to Insights tab. (`done`)
+  - Subtask: Add counterfactual/missed-upset/narrative explainability panels. (`done`)
+  - Subtask: Add reviewer-facing logic guide and checklist in app. (`done`)
+  - Subtask: Final dashboard visual polish pass. (`in_progress`)
+
+- **Task: 6.9 Metric Semantics and Trust**
+  - Subtask: Replace ambiguous upset-risk display with explicit `Underdog Win Probability`. (`done`)
+  - Subtask: Add `Upset Severity Index` (underdog probability weighted by ELO gap). (`done`)
+  - Subtask: Update comparison table to include underdog and severity metrics. (`done`)
+  - Subtask: Add tests to lock semantics for new scenario scoring outputs. (`done`)
 
 ### Section 5 - Explainability Content Completion
 

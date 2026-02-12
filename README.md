@@ -58,6 +58,15 @@ Run all commands from the project root.
 9. Regenerate data quality report:
    - `python scripts/run_data_quality.py`
 
+## Dashboard Walkthrough
+
+The Streamlit app now uses a multi-tab dashboard:
+
+- `Simulator`: scenario inputs, win probabilities, upset alerts, scenario deltas, and exports.
+- `How It Works`: plain-language logic for favorite/underdog, upset-risk thresholds, and priors fallback tiers.
+- `Insights`: calibration curve, validation/test metrics, ELO-gap upset buckets, and notable upset table.
+- `Explainability`: local counterfactual view, missed-upsets audit, curated upset narratives, and pattern summaries.
+
 ## Automation
 
 - CI workflow: `.github/workflows/ci.yml`

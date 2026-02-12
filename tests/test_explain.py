@@ -2,8 +2,11 @@ import pandas as pd
 
 from src.explain import (
     build_counterfactual_explanation,
+    build_curated_upset_narratives,
+    build_missed_upsets_audit,
     matchup_volatility_profile,
     rank_notable_upsets,
+    summarize_curated_upset_patterns,
 )
 from src.models import train_logistic_baseline
 
@@ -70,4 +73,26 @@ def test_matchup_volatility_profile_returns_expected_range(synthetic_matches_df)
     assert profile["matches"] >= 1
     assert 0.0 <= profile["upset_rate"] <= 1.0
     assert 0.0 <= profile["volatility_index"] <= 1.0
+
+
+def test_build_missed_upsets_audit_returns_sorted_rows(synthetic_matches_df):
+    df = synthetic_matches_df.copy()
+    df["is_upset"] = [1, 1, 0, 0, 1, 0]
+    df["pred_is_upset"] = [0, 1, 0, 0, 0, 0]
+    df["favorite_team"] = df["team1"]
+    df["team1_win_prob"] = [0.9, 0.2, 0.6, 0.7, 0.8, 0.4]
+    out = build_missed_upsets_audit(df, top_n=5)
+    assert len(out) == 2
+    assert out.iloc[0]["favorite_confidence"] >= out.iloc[1]["favorite_confidence"]
+
+
+def test_curated_narratives_and_summary(synthetic_matches_df):
+    df = synthetic_matches_df.copy()
+    df["is_upset"] = [0, 1, 0, 1, 0, 1]
+    df["elo_diff"] = [10, -30, 5, -40, 8, -20]
+    curated = build_curated_upset_narratives(df, top_n=3)
+    assert "narrative" in curated.columns
+    summaries = summarize_curated_upset_patterns(curated)
+    assert "stage_summary" in summaries
+    assert "venue_summary" in summaries
 

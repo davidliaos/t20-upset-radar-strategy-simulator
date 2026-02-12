@@ -51,12 +51,33 @@ def build_scenario_features(payload: ScenarioInput) -> pd.DataFrame:
 
 
 def score_scenario(model: Any, feature_row: pd.DataFrame) -> Dict[str, float]:
-    """Return team1/team2 win probabilities and upset risk estimate."""
+    """Return probabilities plus upset-oriented metrics.
+
+    - `underdog_win_prob`: probability the ELO underdog wins.
+    - `upset_risk`: alias of `underdog_win_prob` for backwards compatibility.
+    - `upset_severity_index`: underdog probability weighted by strength gap.
+    """
     probs = model.predict_proba(feature_row)[0]
     p_team1 = float(probs[1])
     p_team2 = 1.0 - p_team1
-    upset_risk = min(p_team1, p_team2)
-    return {"team1_win_prob": p_team1, "team2_win_prob": p_team2, "upset_risk": upset_risk}
+    row = feature_row.iloc[0]
+    elo_team1 = float(row.get("elo_team1", 1500.0))
+    elo_team2 = float(row.get("elo_team2", 1500.0))
+    favorite_is_team1 = elo_team1 >= elo_team2
+    underdog_win_prob = p_team2 if favorite_is_team1 else p_team1
+
+    elo_gap = abs(elo_team1 - elo_team2)
+    # 250 Elo approximates a substantial gap; cap to keep index bounded [0, 1].
+    gap_factor = min(elo_gap / 250.0, 1.0)
+    upset_severity_index = underdog_win_prob * gap_factor
+
+    return {
+        "team1_win_prob": p_team1,
+        "team2_win_prob": p_team2,
+        "underdog_win_prob": underdog_win_prob,
+        "upset_risk": underdog_win_prob,
+        "upset_severity_index": upset_severity_index,
+    }
 
 
 def normalize_matchup_rows(df: pd.DataFrame, team1: str, team2: str) -> pd.DataFrame:

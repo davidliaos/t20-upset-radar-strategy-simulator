@@ -114,3 +114,69 @@ def matchup_volatility_profile(df: pd.DataFrame, team1: str, team2: str) -> Dict
         "volatility_index": volatility_index,
     }
 
+
+def build_missed_upsets_audit(df: pd.DataFrame, top_n: int = 15) -> pd.DataFrame:
+    """Return highest-confidence upset misses for post-hoc model review."""
+    required = {
+        "is_upset",
+        "pred_is_upset",
+        "favorite_team",
+        "team1",
+        "team1_win_prob",
+        "winner",
+    }
+    missing = required - set(df.columns)
+    if missing:
+        raise ValueError(f"Missing required columns for missed-upsets audit: {sorted(missing)}")
+
+    audit_df = df.copy()
+    audit_df["favorite_confidence"] = audit_df.apply(
+        lambda r: r["team1_win_prob"] if r["favorite_team"] == r["team1"] else (1 - r["team1_win_prob"]),
+        axis=1,
+    )
+    missed = audit_df[(audit_df["is_upset"] == 1) & (audit_df["pred_is_upset"] == 0)].copy()
+    if missed.empty:
+        return missed
+    return missed.sort_values("favorite_confidence", ascending=False).head(top_n)
+
+
+def build_curated_upset_narratives(df: pd.DataFrame, top_n: int = 10) -> pd.DataFrame:
+    """Build concise narratives for notable upsets."""
+    notable = rank_notable_upsets(df, top_n=top_n).copy()
+    if notable.empty:
+        return notable
+
+    notable["elo_gap"] = notable["elo_diff"].abs().round(1)
+
+    def _narrative(row: pd.Series) -> str:
+        favorite = row.get("favorite_team", "favorite")
+        winner = row.get("winner", "winner")
+        stage = row.get("match_stage", "Unknown Stage")
+        gap = row.get("elo_gap", "n/a")
+        return f"At {stage}, {winner} beat favorite {favorite} despite an ELO gap of {gap}."
+
+    notable["narrative"] = notable.apply(_narrative, axis=1)
+    return notable
+
+
+def summarize_curated_upset_patterns(curated_upsets: pd.DataFrame) -> Dict[str, pd.DataFrame]:
+    """Summarize stage/venue context from curated upset cases."""
+    if curated_upsets.empty:
+        return {"stage_summary": pd.DataFrame(), "venue_summary": pd.DataFrame()}
+
+    stage_summary = (
+        curated_upsets["match_stage"]
+        .value_counts(dropna=False)
+        .rename("count")
+        .reset_index()
+        .rename(columns={"index": "match_stage"})
+    )
+    venue_summary = (
+        curated_upsets["venue"]
+        .value_counts(dropna=False)
+        .rename("count")
+        .reset_index()
+        .rename(columns={"index": "venue"})
+    )
+    return {"stage_summary": stage_summary, "venue_summary": venue_summary}
+
