@@ -22,6 +22,7 @@ from .models import (
 )
 from .simulation import (
     ScenarioInput,
+    build_scenario_export_payload,
     build_scenario_features,
     estimate_scenario_defaults,
     estimate_scenario_defaults_with_meta,
@@ -48,6 +49,7 @@ __all__ = [
     "load_model_artifacts",
     "train_logistic_baseline",
     "ScenarioInput",
+    "build_scenario_export_payload",
     "build_scenario_features",
     "normalize_matchup_rows",
     "estimate_scenario_defaults",

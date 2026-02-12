@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import replace
+from datetime import UTC, datetime
 
 import pandas as pd
 import streamlit as st
@@ -24,6 +26,7 @@ from src.models import (
 )
 from src.simulation import (
     ScenarioInput,
+    build_scenario_export_payload,
     build_scenario_features,
     build_upset_alert,
     estimate_scenario_defaults_with_meta,
@@ -47,14 +50,15 @@ def get_baseline_model():
 
     try:
         artifacts = load_model_artifacts(model_name=model_name)
-        return artifacts.model, df, "loaded"
+        return artifacts.model, df, "loaded", model_name, artifacts.metadata
     except FileNotFoundError:
         X_train, y_train = build_pre_match_feature_frame(train_df)
         X_valid, y_valid = build_pre_match_feature_frame(valid_df)
         baseline = train_logistic_baseline(X_train, y_train)
         model = calibrate_classifier(baseline, X_valid, y_valid)
-        save_model_artifacts(model, model_name=model_name, metadata=build_default_metadata())
-        return model, df, "trained"
+        metadata = build_default_metadata()
+        save_model_artifacts(model, model_name=model_name, metadata=metadata)
+        return model, df, "trained", model_name, metadata
 
 
 def main() -> None:
@@ -62,7 +66,7 @@ def main() -> None:
     st.title("T20 Upset Radar and Strategy Simulator")
     st.caption("MVP simulator using pre-match features and a calibrated logistic baseline.")
 
-    model, df, model_source = get_baseline_model()
+    model, df, model_source, model_name, model_metadata = get_baseline_model()
     st.caption(f"Model source: {model_source} artifact (`models/baseline_logistic_calibrated.joblib`).")
     teams = sorted(set(df["team1"]).union(set(df["team2"])))
     venues = sorted(df["venue"].dropna().astype(str).unique().tolist())
@@ -74,8 +78,14 @@ def main() -> None:
         team2_options = [t for t in teams if t != team1]
         team2 = st.selectbox("Team 2", options=team2_options, index=0)
         venue = st.selectbox("Venue", options=venues, index=0)
+        venue_city_mode = (
+            df.loc[df["venue"].astype(str) == str(venue), "city"].dropna().mode()
+            if "city" in df.columns
+            else pd.Series(dtype="object")
+        )
+        venue_city = str(venue_city_mode.iloc[0]) if not venue_city_mode.empty else None
 
-        defaults_meta = estimate_scenario_defaults_with_meta(df, team1, team2, venue)
+        defaults_meta = estimate_scenario_defaults_with_meta(df, team1, team2, venue, city=venue_city)
         defaults = defaults_meta["defaults"]
         use_priors = st.checkbox("Use matchup priors for numeric defaults", value=True)
         source_tier = str(defaults_meta["source_tier"])
@@ -156,6 +166,43 @@ def main() -> None:
     st.dataframe(comparison_df.style.format({"team1_win_prob": "{:.1%}", "upset_risk": "{:.1%}"}), use_container_width=True)
     st.caption(
         f"Scenario delta (alternative - current): team1 win {delta_team1:+.1%}, upset risk {delta_upset:+.1%}."
+    )
+    generated_at_utc = datetime.now(UTC).isoformat()
+    export_df = comparison_df.copy()
+    export_df["team1"] = team1
+    export_df["team2"] = team2
+    export_df["venue"] = venue
+    export_df["match_stage"] = stage
+    export_df["toss_winner"] = toss_winner
+    export_df["priors_source_tier"] = source_tier
+    export_df["generated_at_utc"] = generated_at_utc
+
+    export_payload = build_scenario_export_payload(
+        current_scenario=scenario,
+        current_result=result,
+        alternative_scenario=alt_scenario,
+        alternative_result=alt_result,
+        priors_source_tier=source_tier,
+        priors_source_rows=int(defaults_meta["source_rows"]),
+        model_name=model_name,
+        model_source=model_source,
+        generated_at_utc=generated_at_utc,
+    )
+    export_payload["model"]["metadata"] = model_metadata
+
+    st.subheader("Export Scenarios")
+    e1, e2 = st.columns(2)
+    e1.download_button(
+        label="Download comparison CSV",
+        data=export_df.to_csv(index=False),
+        file_name=f"scenario_comparison_{team1}_vs_{team2}.csv".replace(" ", "_"),
+        mime="text/csv",
+    )
+    e2.download_button(
+        label="Download scenario JSON",
+        data=json.dumps(export_payload, indent=2),
+        file_name=f"scenario_comparison_{team1}_vs_{team2}.json".replace(" ", "_"),
+        mime="application/json",
     )
 
     volatility = matchup_volatility_profile(df, team1, team2)

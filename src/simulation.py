@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import Any, Dict, Tuple
 
 import pandas as pd
@@ -105,6 +105,27 @@ def _get_venue_rows(df: pd.DataFrame, venue: str) -> pd.DataFrame:
     return df[df["venue"].astype(str) == venue_str].copy()
 
 
+def _infer_city_for_venue(df: pd.DataFrame, venue: str) -> str | None:
+    """Infer a likely city value for the selected venue from historical rows."""
+    if "city" not in df.columns:
+        return None
+    venue_rows = _get_venue_rows(df, venue)
+    if venue_rows.empty:
+        return None
+    city_mode = venue_rows["city"].dropna().mode()
+    if city_mode.empty:
+        return None
+    return str(city_mode.iloc[0])
+
+
+def _get_city_rows(df: pd.DataFrame, city: str | None) -> pd.DataFrame:
+    """Return all rows in the inferred city (all teams)."""
+    if "city" not in df.columns or not city:
+        return pd.DataFrame(columns=df.columns)
+    city_str = str(city)
+    return df[df["city"].astype(str) == city_str].copy()
+
+
 def _get_global_rows(df: pd.DataFrame) -> pd.DataFrame:
     """Return the full dataframe as global fallback."""
     return df.copy()
@@ -152,13 +173,15 @@ def _clamp_metrics(defaults: Dict[str, float | str | None]) -> None:
 
 
 def _select_fallback_source(
-    df: pd.DataFrame, team1: str, team2: str, venue: str
+    df: pd.DataFrame, team1: str, team2: str, venue: str, city: str | None = None
 ) -> pd.DataFrame:
     """Select source rows using explicit fallback order: matchup+venue -> matchup -> venue -> global."""
+    inferred_city = city or _infer_city_for_venue(df, venue)
     tiers = [
         lambda: _get_matchup_venue_rows(df, team1, team2, venue),
         lambda: _get_matchup_rows(df, team1, team2),
         lambda: _get_venue_rows(df, venue),
+        lambda: _get_city_rows(df, inferred_city),
         lambda: _get_global_rows(df),
     ]
     for tier_fn in tiers:
@@ -169,13 +192,15 @@ def _select_fallback_source(
 
 
 def _select_fallback_source_with_tier(
-    df: pd.DataFrame, team1: str, team2: str, venue: str
+    df: pd.DataFrame, team1: str, team2: str, venue: str, city: str | None = None
 ) -> Tuple[pd.DataFrame, str]:
     """Select source rows and report which fallback tier was used."""
+    inferred_city = city or _infer_city_for_venue(df, venue)
     tiers = [
         ("matchup_venue", lambda: _get_matchup_venue_rows(df, team1, team2, venue)),
         ("matchup", lambda: _get_matchup_rows(df, team1, team2)),
         ("venue", lambda: _get_venue_rows(df, venue)),
+        ("city", lambda: _get_city_rows(df, inferred_city)),
         ("global", lambda: _get_global_rows(df)),
     ]
     for tier_name, tier_fn in tiers:
@@ -185,7 +210,9 @@ def _select_fallback_source_with_tier(
     return df.copy(), "global"
 
 
-def estimate_scenario_defaults(df: pd.DataFrame, team1: str, team2: str, venue: str) -> Dict[str, float | str | None]:
+def estimate_scenario_defaults(
+    df: pd.DataFrame, team1: str, team2: str, venue: str, city: str | None = None
+) -> Dict[str, float | str | None]:
     """Estimate robust historical priors for scenario controls.
 
     Uses explicit fallback order: matchup+venue -> matchup -> venue -> global.
@@ -202,21 +229,21 @@ def estimate_scenario_defaults(df: pd.DataFrame, team1: str, team2: str, venue: 
             "match_stage": None,
             "toss_decision": "field",
         }
-    source = _select_fallback_source(df, team1, team2, venue)
+    source = _select_fallback_source(df, team1, team2, venue, city=city)
     defaults = _compute_defaults_from_source(source)
     _clamp_metrics(defaults)
     return defaults
 
 
 def estimate_scenario_defaults_with_meta(
-    df: pd.DataFrame, team1: str, team2: str, venue: str
+    df: pd.DataFrame, team1: str, team2: str, venue: str, city: str | None = None
 ) -> Dict[str, Any]:
     """Estimate priors and include fallback-tier metadata for UI diagnostics."""
     if df.empty:
-        defaults = estimate_scenario_defaults(df, team1, team2, venue)
+        defaults = estimate_scenario_defaults(df, team1, team2, venue, city=city)
         return {"defaults": defaults, "source_tier": "empty_defaults", "source_rows": 0}
 
-    source, tier = _select_fallback_source_with_tier(df, team1, team2, venue)
+    source, tier = _select_fallback_source_with_tier(df, team1, team2, venue, city=city)
     defaults = _compute_defaults_from_source(source)
     _clamp_metrics(defaults)
     return {"defaults": defaults, "source_tier": tier, "source_rows": int(len(source))}
@@ -228,10 +255,50 @@ def prior_confidence_label(source_tier: str) -> str:
         "matchup_venue": "high",
         "matchup": "medium",
         "venue": "medium",
+        "city": "low",
         "global": "low",
         "empty_defaults": "low",
     }
     return mapping.get(source_tier, "low")
+
+
+def build_scenario_export_payload(
+    *,
+    current_scenario: ScenarioInput,
+    current_result: Dict[str, float],
+    alternative_scenario: ScenarioInput,
+    alternative_result: Dict[str, float],
+    priors_source_tier: str,
+    priors_source_rows: int,
+    model_name: str,
+    model_source: str,
+    generated_at_utc: str,
+) -> Dict[str, Any]:
+    """Build a JSON-serializable export payload for scenario comparisons."""
+    return {
+        "generated_at_utc": generated_at_utc,
+        "model": {
+            "name": model_name,
+            "source": model_source,
+        },
+        "priors": {
+            "source_tier": priors_source_tier,
+            "source_rows": int(priors_source_rows),
+            "confidence": prior_confidence_label(priors_source_tier),
+        },
+        "scenarios": [
+            {
+                "label": "current",
+                "inputs": asdict(current_scenario),
+                "outputs": current_result,
+            },
+            {
+                "label": "alternative",
+                "inputs": asdict(alternative_scenario),
+                "outputs": alternative_result,
+            },
+        ],
+    }
 
 
 def get_stage_alert_threshold(stage: str | None) -> float:

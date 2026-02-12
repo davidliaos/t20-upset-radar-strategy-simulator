@@ -225,6 +225,7 @@ Status legend:
   - stage-aware upset alert severity with threshold messaging in `app.py`.
   - explicit scenario delta narrative (alternative vs current probabilities).
   - matchup volatility radar (history count, upset rate, volatility index).
+  - scenario export actions (CSV + JSON) with timestamp and model metadata.
 
 ---
 
@@ -280,10 +281,10 @@ Status legend:
 
 ## Immediate Next Iteration (High Leverage)
 
-1. Extend fallback diagnostics from venue tiers to venue -> city -> global hierarchy.
-2. Expand local explainability into 5-10 curated upset case narratives with short commentary.
-3. Polish `notebooks/99_final_story.ipynb` with final charts and concise written insights.
-4. Add final README product visuals (screenshots/GIF) and a concise results table.
+1. Expand local explainability into 5-10 curated upset case narratives with short commentary.
+2. Polish `notebooks/99_final_story.ipynb` with final charts and concise written insights.
+3. Add final README product visuals (screenshots/GIF) and a concise results table.
+4. Add a compact "missed upsets audit" table to the final narrative notebook.
 
 ---
 
@@ -327,6 +328,8 @@ Status legend:
 - 2026-02-12: Added scenario delta narrative and matchup volatility radar to Streamlit app.
 - 2026-02-12: Added `notebooks/99_final_story.ipynb` MVP narrative scaffold.
 - 2026-02-12: Added priors source-tier diagnostics and confidence labels for simulator defaults.
+- 2026-02-12: Added scenario export support (CSV/JSON) with model metadata and timestamps.
+- 2026-02-12: Extended fallback order to include city tier (`matchup_venue -> matchup -> venue -> city -> global`).
 
 ---
 
@@ -346,14 +349,14 @@ Status legend:
 - **Task: 6.5 Priors Transparency and Confidence**
   - Subtask: Show fallback source tier (`matchup_venue`, `matchup`, `venue`, `global`) in Streamlit.
   - Subtask: Display confidence label (`high`/`medium`/`low`) next to priors source.
-  - Subtask: Extend logic to include `city` tier between `venue` and `global`.
+  - Subtask: Extend logic to include `city` tier between `venue` and `global`. (`done`)
   - Subtask: Add tests for source-tier selection order and confidence labels.
 
 - **Task: 6.6 Scenario Export and Auditability**
-  - Subtask: Add one-click export of scenario comparison table to CSV.
-  - Subtask: Add JSON export including full scenario inputs and model outputs.
-  - Subtask: Include timestamp + model artifact metadata in export.
-  - Subtask: Add brief export usage note in README.
+  - Subtask: Add one-click export of scenario comparison table to CSV. (`done`)
+  - Subtask: Add JSON export including full scenario inputs and model outputs. (`done`)
+  - Subtask: Include timestamp + model artifact metadata in export. (`done`)
+  - Subtask: Add brief export usage note in README. (`done`)
 
 - **Task: 6.7 Upset Watchlist Panel**
   - Subtask: Build a ranking view for high-upset-risk matchups from sampled scenarios.

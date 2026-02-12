@@ -46,6 +46,7 @@ Run all commands from the project root.
    - `python scripts/train_and_save.py`
 5. Run the simulator:
    - `streamlit run app.py`
+   - Use **Download comparison CSV** and **Download scenario JSON** buttons in the app to export scenario audits with model metadata.
 6. Run tests:
    - `pytest`
 7. Run quality gates locally:
