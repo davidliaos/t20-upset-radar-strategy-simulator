@@ -246,8 +246,11 @@ Status legend:
 - Status: `in_progress`
 - Planned artifact:
   - `notebooks/99_final_story.ipynb` (or similarly named final report notebook).
+- Existing:
+  - created `notebooks/99_final_story.ipynb` with end-to-end MVP narrative scaffold.
 - Remaining:
   - assemble storyline from data audit -> modeling -> explainability -> simulator.
+  - expand with polished charts/tables and final written insights.
   - include concise conclusions and limitations.
 
 ### 7.3 Reflection and Future Work
@@ -296,7 +299,7 @@ Status legend:
 ### Remaining for MVP ship
 
 - Curate final upset case narratives (5-10 examples) in notebook/docs.
-- Build and polish `notebooks/99_final_story.ipynb`.
+- Polish `notebooks/99_final_story.ipynb` with final visuals and commentary.
 - Capture Streamlit screenshots/GIF and add to `README.md`.
 - Final documentation pass (limitations + future work + crisp results summary).
 
@@ -321,6 +324,7 @@ Status legend:
 - 2026-02-12: Added stage-aware upset alert thresholds and local counterfactual upset explainers.
 - 2026-02-12: Added scripted data quality regeneration command (`scripts/run_data_quality.py`) and tests.
 - 2026-02-12: Added scenario delta narrative and matchup volatility radar to Streamlit app.
+- 2026-02-12: Added `notebooks/99_final_story.ipynb` MVP narrative scaffold.
 
 ---
 
