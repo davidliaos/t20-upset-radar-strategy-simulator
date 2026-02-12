@@ -250,6 +250,7 @@ Status legend:
   - `notebooks/99_final_story.ipynb` (or similarly named final report notebook).
 - Existing:
   - created `notebooks/99_final_story.ipynb` with end-to-end MVP narrative scaffold.
+  - added a compact missed-upsets audit table section for high-confidence upset misses.
 - Remaining:
   - assemble storyline from data audit -> modeling -> explainability -> simulator.
   - expand with polished charts/tables and final written insights.
@@ -284,7 +285,7 @@ Status legend:
 1. Expand local explainability into 5-10 curated upset case narratives with short commentary.
 2. Polish `notebooks/99_final_story.ipynb` with final charts and concise written insights.
 3. Add final README product visuals (screenshots/GIF) and a concise results table.
-4. Add a compact "missed upsets audit" table to the final narrative notebook.
+4. Finalize README model card with calibrated metrics snapshot and limitations.
 
 ---
 
@@ -330,6 +331,7 @@ Status legend:
 - 2026-02-12: Added priors source-tier diagnostics and confidence labels for simulator defaults.
 - 2026-02-12: Added scenario export support (CSV/JSON) with model metadata and timestamps.
 - 2026-02-12: Extended fallback order to include city tier (`matchup_venue -> matchup -> venue -> city -> global`).
+- 2026-02-12: Added compact missed-upsets audit section in `notebooks/99_final_story.ipynb`.
 
 ---
 
