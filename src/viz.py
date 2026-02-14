@@ -30,3 +30,39 @@ def upset_rate_by_bucket(df: pd.DataFrame, score_col: str, upset_col: str, bins:
     grouped = grouped.rename(columns={"mean": "upset_rate", "count": "matches"})
     return grouped
 
+
+def correlation_strength_label(correlation: float) -> str:
+    """Return a concise qualitative label for correlation magnitude."""
+    magnitude = abs(float(correlation))
+    if magnitude >= 0.8:
+        return "High"
+    if magnitude >= 0.5:
+        return "Moderate"
+    return "Low"
+
+
+def roc_auc_generalization_note(valid_roc_auc: float, test_roc_auc: float) -> tuple[float, str]:
+    """Summarize valid-vs-test ROC AUC behavior for reviewer-facing diagnostics."""
+    gap = float(test_roc_auc) - float(valid_roc_auc)
+    if abs(gap) <= 0.03:
+        note = (
+            "Valid and test ROC AUC are closely aligned, suggesting stable generalization "
+            "across adjacent time windows."
+        )
+    elif gap > 0:
+        note = (
+            "Test ROC AUC is higher than validation. This can happen when the test window "
+            "is slightly easier or better aligned with learned patterns."
+        )
+    else:
+        note = (
+            "Test ROC AUC is lower than validation, which may indicate mild temporal drift "
+            "or reduced signal quality in the newer window."
+        )
+    return gap, note
+
+
+def venue_sample_caution_label(match_count: int, caution_threshold: int = 10) -> str:
+    """Assign a sample-size caution label for venue-level diagnostics."""
+    return "Low sample" if int(match_count) < int(caution_threshold) else "Adequate sample"
+

@@ -1,7 +1,6 @@
 from src.data_prep import (
     assign_favorite_underdog_from_elo,
     build_team1_win_target,
-    load_matches,
 )
 from src.features import (
     CATEGORICAL_FEATURES,
@@ -11,8 +10,8 @@ from src.features import (
 )
 
 
-def test_build_feature_frame_columns_and_target():
-    df = load_matches()
+def test_build_feature_frame_columns_and_target(synthetic_matches_df):
+    df = synthetic_matches_df.copy()
     df = build_team1_win_target(df)
     df = assign_favorite_underdog_from_elo(df)
     X, y = build_pre_match_feature_frame(df)
@@ -23,8 +22,8 @@ def test_build_feature_frame_columns_and_target():
     assert "match_result" not in X.columns
 
 
-def test_context_interactions_created():
-    df = load_matches()
+def test_context_interactions_created(synthetic_matches_df):
+    df = synthetic_matches_df.copy()
     out = add_context_interactions(df)
     assert "toss_stage_interaction" in out.columns
     assert "venue_stage_interaction" in out.columns

@@ -3,7 +3,6 @@ from pathlib import Path
 from src.data_prep import (
     assign_favorite_underdog_from_elo,
     build_team1_win_target,
-    load_matches,
     time_based_split,
 )
 from src.features import build_pre_match_feature_frame
@@ -17,8 +16,8 @@ from src.models import (
 )
 
 
-def _build_train_valid_sets():
-    df = load_matches()
+def _build_train_valid_sets(synthetic_matches_df):
+    df = synthetic_matches_df.copy()
     df = build_team1_win_target(df)
     df = assign_favorite_underdog_from_elo(df)
     train_df, valid_df, _ = time_based_split(df)
@@ -27,8 +26,8 @@ def _build_train_valid_sets():
     return X_train, y_train, X_valid, y_valid
 
 
-def test_logistic_and_calibrated_metrics_shape():
-    X_train, y_train, X_valid, y_valid = _build_train_valid_sets()
+def test_logistic_and_calibrated_metrics_shape(synthetic_matches_df):
+    X_train, y_train, X_valid, y_valid = _build_train_valid_sets(synthetic_matches_df)
     model = train_logistic_baseline(X_train, y_train)
     calibrated = calibrate_classifier(model, X_valid, y_valid)
     metrics = evaluate_binary_model(calibrated, X_valid, y_valid)
@@ -36,8 +35,8 @@ def test_logistic_and_calibrated_metrics_shape():
     assert {"roc_auc", "log_loss", "brier", "positive_rate_pred"} == set(metrics.keys())
 
 
-def test_model_artifact_save_load_roundtrip(tmp_path: Path):
-    X_train, y_train, X_valid, y_valid = _build_train_valid_sets()
+def test_model_artifact_save_load_roundtrip(tmp_path: Path, synthetic_matches_df):
+    X_train, y_train, X_valid, y_valid = _build_train_valid_sets(synthetic_matches_df)
     model = train_logistic_baseline(X_train, y_train)
     calibrated = calibrate_classifier(model, X_valid, y_valid)
 

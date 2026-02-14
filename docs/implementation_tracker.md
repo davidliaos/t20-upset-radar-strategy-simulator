@@ -14,11 +14,10 @@ Status legend:
 
 ## Project Snapshot
 
-- Last updated: 2026-02-12
+- Last updated: 2026-02-13
 - Primary UI: Streamlit (`app.py`) with notebook support
 - Data scope (MVP): all available T20 World Cup data in `data/raw/world_cup_last_30_years.csv`
-- Current phase focus: MVP completed, presentation polish in progress
-- Current phase focus: deep dashboard redesign and insight UX refinement
+- Current phase focus: MVP+ sprint completed and demo-ready
 
 ---
 
@@ -66,6 +65,8 @@ Status legend:
 - Existing artifacts:
   - `docs/data_quality.md` with completed checklist and remediation log
   - `data/processed/data_quality_report.json` (quantitative audit output)
+- Semantics note:
+  - raw audit totals can differ from model-ready totals because supervised workflows filter to completed matches.
 
 ### 1.3 Outcome and Key Feature Identification
 
@@ -212,12 +213,11 @@ Status legend:
 
 ### 6.3 Implement Basic UI
 
-- Status: `in_progress`
+- Status: `done`
 - Implementation:
   - Streamlit dashboard UI in `app.py` with tabbed navigation.
   - matchup-driven numeric defaults for ELO/form/H2H priors.
-- Remaining:
-  - tune visual hierarchy and spacing for final polish.
+  - focus mode and compact mode toggles for presentation-oriented review flows.
 
 ### 6.4 Scenario Comparison View
 
@@ -231,13 +231,12 @@ Status legend:
 
 ### 6.8 Deep Dashboard IA and Reviewability
 
-- Status: `in_progress`
+- Status: `done`
 - Implementation:
   - Introduced tabs: Simulator, How It Works, Insights, Explainability.
   - Added in-app review checklist and output explanation cards.
   - Added diagnostics and explainability panels for faster human review loops.
-- Remaining:
-  - complete final visual polish and GIF walkthrough capture.
+  - completed final visual polish pass and walkthrough asset capture.
 
 ---
 
@@ -245,26 +244,22 @@ Status legend:
 
 ### 7.1 Polish README and Docs
 
-- Status: `in_progress`
+- Status: `done`
 - Existing:
   - README and core docs present.
   - [docs/code_conventions.md](code_conventions.md) for development standards.
   - quality commands and pre-commit usage documented in README.
-- Remaining:
-  - add final MVP demo GIF from Streamlit (screenshot now added in README).
+  - README now includes MVP screenshot + walkthrough GIF and dashboard interpretation block.
 
 ### 7.2 Final Narrative Notebook
 
-- Status: `in_progress`
+- Status: `done`
 - Planned artifact:
   - `notebooks/99_final_story.ipynb` (or similarly named final report notebook).
 - Existing:
   - created `notebooks/99_final_story.ipynb` with end-to-end MVP narrative scaffold.
   - added a compact missed-upsets audit table section for high-confidence upset misses.
-- Remaining:
-  - assemble storyline from data audit -> modeling -> explainability -> simulator.
-  - expand with polished charts/tables and final written insights.
-  - include concise conclusions and limitations.
+  - added concise sprint-change summary and final conclusions/limitations section.
 
 ### 7.3 Reflection and Future Work
 
@@ -292,10 +287,10 @@ Status legend:
 
 ## Immediate Next Iteration (High Leverage)
 
-1. Finalize dashboard visual polish (spacing, typography, panel balance).
-2. Capture updated dashboard GIF walkthrough after IA redesign.
-3. Run one end-to-end human review pass and collect iteration notes.
-4. Convert review notes into next sprint Asana subtasks.
+1. Add advanced model comparison artifact (logistic vs XGBoost) into Insights/doc outputs.
+2. Add one compact report view (top scenarios + top venue hotspots) for presentation sharing.
+3. Explore richer player-level priors once data availability is confirmed.
+4. Expand notebook appendix with feature-gap audits for missed-upset clusters.
 
 ---
 
@@ -311,8 +306,8 @@ Status legend:
 
 ### Remaining for MVP ship
 
-- MVP functionality complete; remaining items are presentation polish only.
-- Capture Streamlit GIF and add to `README.md` (screenshot already added).
+- MVP functionality and presentation assets are complete.
+- Remaining work is optional enhancement iteration (advanced model reporting and narrative refinements).
 
 ### MVP confidence
 
@@ -345,6 +340,9 @@ Status legend:
 - 2026-02-12: Marked MVP as functionally complete; remaining work is presentation assets (screenshots/GIF).
 - 2026-02-12: Captured and added Streamlit MVP screenshot to `README.md`.
 - 2026-02-12: Refactored Streamlit into multi-tab dashboard with insights and explainability pages.
+- 2026-02-12: Added walkthrough GIF asset and README guidance on interpreting dashboard outputs.
+- 2026-02-12: Added focus-mode UX, realistic default matchup seeding, and venue plausibility filtering.
+- 2026-02-12: Added insights trust cards (ROC gap interpretation + upset metric correlation) and venue hotspot sample-size guardrails.
 
 ---
 
@@ -374,17 +372,17 @@ Status legend:
   - Subtask: Add brief export usage note in README. (`done`)
 
 - **Task: 6.7 Upset Watchlist Panel**
-  - Subtask: Build a ranking view for high-upset-risk matchups from sampled scenarios.
-  - Subtask: Include volatility index and upset risk together in watchlist scoring.
-  - Subtask: Add stage filter (group/knockout) and venue filter.
-  - Subtask: Add simple interpretation text for top 3 watchlist entries.
+  - Subtask: Build a ranking view for high-upset-risk matchups from sampled scenarios. (`done`)
+  - Subtask: Include volatility index and upset risk together in watchlist scoring. (`done`)
+  - Subtask: Add stage filter (group/knockout) and venue filter. (`done`)
+  - Subtask: Add simple interpretation text for top 3 watchlist entries. (`done`)
 
 - **Task: 6.8 Dashboard Redesign Sprint**
   - Subtask: Refactor app into tabs (`Simulator`, `How It Works`, `Insights`, `Explainability`). (`done`)
   - Subtask: Add diagnostics charts (calibration + upset bucket) to Insights tab. (`done`)
   - Subtask: Add counterfactual/missed-upset/narrative explainability panels. (`done`)
   - Subtask: Add reviewer-facing logic guide and checklist in app. (`done`)
-  - Subtask: Final dashboard visual polish pass. (`in_progress`)
+  - Subtask: Final dashboard visual polish pass. (`done`)
 
 - **Task: 6.9 Metric Semantics and Trust**
   - Subtask: Replace ambiguous upset-risk display with explicit `Underdog Win Probability`. (`done`)
@@ -414,7 +412,7 @@ Status legend:
 ### Section 7 - Portfolio Polish
 
 - **Task: 7.4 MVP Presentation Assets**
-  - Subtask: Capture Streamlit screenshot set and one short GIF walkthrough. (`partial`: screenshot done, GIF pending)
+  - Subtask: Capture Streamlit screenshot set and one short GIF walkthrough. (`done`)
   - Subtask: Add README model card (data window, split policy, calibration, limits). (`done`)
   - Subtask: Add concise results summary table in README. (`done`)
   - Subtask: Final QA pass on docs for consistency with tracker statuses. (`done`)

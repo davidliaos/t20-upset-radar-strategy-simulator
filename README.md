@@ -16,8 +16,13 @@ Two deliverables drive the work:
 Primary dataset:
 
 - `data/raw/world_cup_last_30_years.csv`
+- Kaggle source: `T20 World Cup 2026 AI Prediction and Analysis` by Ibrahim Shahrukh  
+  https://www.kaggle.com/datasets/ibrahimshahrukh/t20-world-cup-2026-ai-prediction-and-analysis?resource=download
 
 The dataset includes match metadata, teams, venue, toss context, results, and pre-match style features such as ELO values, rolling form metrics, and head-to-head indicators.
+Raw audit row count is `3865`; model-ready supervised workflows operate on completed matches (`3761` rows after `match_result == completed` filtering).
+
+Attribution: this project reuses the Kaggle dataset above for analysis and modeling; full credit to the original dataset author/publisher.
 
 ## Project Structure
 
@@ -42,20 +47,22 @@ Run all commands from the project root.
    - `notebooks/01_data_audit.ipynb`
    - `notebooks/02_model_baseline.ipynb`
    - `notebooks/03_upset_explorer.ipynb`
-4. Train and save calibrated artifacts (recommended before simulator):
+4. Run final narrative notebook:
+   - `notebooks/99_final_story.ipynb`
+5. Train and save calibrated artifacts (recommended before simulator):
    - `python scripts/train_and_save.py`
-5. Run the simulator:
+6. Run the simulator:
    - `streamlit run app.py`
-   - Use **Download comparison CSV** and **Download scenario JSON** buttons in the app to export scenario audits with model metadata.
-6. Run tests:
+   - Use **Export for slides (CSV)** and **Export for audit traces (JSON)** in the app to export scenario audits with model metadata.
+7. Run tests:
    - `pytest`
-7. Run quality gates locally:
+8. Run quality gates locally:
    - `ruff check .`
    - `mypy src scripts app.py`
    - `python scripts/check_conventions.py`
-8. Run tests with coverage:
+9. Run tests with coverage:
    - `pytest --cov=src --cov=scripts --cov-report=term-missing --cov-fail-under=70`
-9. Regenerate data quality report:
+10. Regenerate data quality report:
    - `python scripts/run_data_quality.py`
 
 ## Dashboard Walkthrough
@@ -104,6 +111,8 @@ The Streamlit app now uses a multi-tab dashboard:
 ### Current Metrics Snapshot
 
 Source: `data/processed/baseline_logistic_calibrated_metrics.json`
+Note: these values reflect the latest saved artifact run; your local metrics may vary after retraining.
+Refresh command: run `python scripts/train_and_save.py` to regenerate metrics and artifacts before demos.
 
 | Split | ROC AUC | Log Loss | Brier | Predicted Positive Rate |
 |---|---:|---:|---:|---:|
@@ -118,9 +127,31 @@ Source: `data/processed/baseline_logistic_calibrated_metrics.json`
 - Scenario export workflow (CSV + JSON) with model metadata and timestamps.
 - Final narrative notebook with missed-upsets audit and curated upset stories.
 
-## App Screenshot
+## App Demo
 
 ![T20 Upset Radar Streamlit MVP](docs/assets/streamlit_mvp_main.png)
+![T20 Upset Radar Streamlit Walkthrough](docs/assets/streamlit_mvp_walkthrough.gif)
+
+### How to Read the Dashboard
+
+- Start in `Simulator` to set teams, realistic venues, and match context.
+- Use `Underdog Win Probability` for surprise likelihood and `Upset Severity Index` for surprise impact.
+- Check `Risk Context` for head-to-head volatility before trusting scenario deltas.
+- Use `Insights` to compare observed vs predicted upset behavior (ELO buckets and venue hotspots).
+
+### Live Demo Flow (2-3 minutes)
+
+- Set a rivalry matchup in `Simulator`, keep realistic venue filtering on, and highlight the `Upset Alert`.
+- Toggle toss decision and use the comparison table to narrate probability movement.
+- Open `Insights` to show calibration + ROC trust interpretation + venue sample-size cautions.
+- Finish in `Explainability` with one counterfactual case and one missed-upset audit row.
+
+### When to Trust This Dashboard
+
+- **High confidence:** priors source is `matchup_venue` or `matchup`, with healthy sample counts and stable validation/test ROC alignment.
+- **Medium confidence:** priors source is `venue` or `city`, and calibration remains reasonably aligned with the diagonal.
+- **Low confidence:** priors source is `global`, or venue/matchup history is very sparse; use as exploratory signal only.
+- Always combine scenario probabilities with `Risk Context`, calibration view, and sample-size cautions before decisions.
 
 ## Upset Definition (MVP)
 
@@ -139,7 +170,7 @@ See [docs/code_conventions.md](docs/code_conventions.md) for module boundaries, 
 ## Limitations and Future Work
 
 Limitations:
-- Current model family is intentionally simple (logistic baseline) for interpretability-first MVP.
+- Current primary model family is a calibrated logistic baseline chosen for interpretability and stable reviewer-facing diagnostics; XGBoost training support is available for next-phase comparison.
 - Team-level and venue-level proxies are used; no player-level or ball-by-ball context yet.
 - Rare-event upsets remain difficult, especially for extreme outlier matches.
 

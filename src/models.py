@@ -86,12 +86,18 @@ def calibrate_classifier(
 
     Supports both new and old scikit-learn calibration APIs.
     """
+    y_series = pd.Series(y_valid)
+    class_counts = y_series.value_counts()
+    if len(class_counts) < 2:
+        raise ValueError("Calibration requires at least two classes in validation labels.")
+    safe_cv = max(2, min(5, int(class_counts.min()), int(len(y_series))))
+
     try:
         # scikit-learn >=1.6 path.
         from sklearn.frozen import FrozenEstimator
 
         calibrated = CalibratedClassifierCV(
-            estimator=FrozenEstimator(model), method="sigmoid", cv=None
+            estimator=FrozenEstimator(model), method="sigmoid", cv=safe_cv
         )
     except ImportError:
         # older scikit-learn path.

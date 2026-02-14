@@ -16,6 +16,7 @@ This file captures quality checks and remediation notes for the source data.
 Source: `data/raw/world_cup_last_30_years.csv`  
 Generated report: `data/processed/data_quality_report.json`
 Regeneration command: `python scripts/run_data_quality.py`
+Semantics note: totals below describe the raw audit dataset; model training defaults to completed matches only (`3761` rows).
 
 - Rows: `3865`
 - Columns: `38`

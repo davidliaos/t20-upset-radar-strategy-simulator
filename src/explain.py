@@ -92,7 +92,11 @@ def build_counterfactual_explanation(
 
 
 def matchup_volatility_profile(df: pd.DataFrame, team1: str, team2: str) -> Dict[str, float]:
-    """Estimate volatility and upset tendency for a team matchup."""
+    """Estimate volatility and upset tendency for a team matchup.
+
+    This is a post-hoc diagnostic summary for historical context and reviewer UX.
+    It uses observed outcomes and is not used as a model training feature.
+    """
     mask = ((df["team1"] == team1) & (df["team2"] == team2)) | (
         (df["team1"] == team2) & (df["team2"] == team1)
     )
@@ -184,4 +188,22 @@ def summarize_curated_upset_patterns(curated_upsets: pd.DataFrame) -> Dict[str, 
         .rename(columns={"index": "venue"})
     )
     return {"stage_summary": stage_summary, "venue_summary": venue_summary}
+
+
+def notable_upset_sentence(
+    winner: str,
+    loser: str,
+    event_name: str,
+    date_label: str,
+) -> str:
+    """Build a readable notable-upset sentence while avoiding duplicated team names."""
+    winner_clean = str(winner).strip() or "Unknown Winner"
+    loser_clean = str(loser).strip() or "Unknown Opponent"
+    if winner_clean == loser_clean:
+        matchup_phrase = winner_clean
+    else:
+        matchup_phrase = f"{winner_clean} beat {loser_clean}"
+    event_clean = str(event_name).strip() or "Unknown Event"
+    date_clean = str(date_label).strip() or "Unknown Date"
+    return f"{matchup_phrase} at {event_clean} on {date_clean}."
 
