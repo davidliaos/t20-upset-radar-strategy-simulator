@@ -53,6 +53,7 @@ Run all commands from the project root.
    - `python scripts/train_and_save.py`
 6. Run the simulator:
    - `streamlit run app.py`
+   - Or try the [live app](https://t20radar.streamlit.app/) (no install required).
    - Use **Export for slides (CSV)** and **Export for audit traces (JSON)** in the app to export scenario audits with model metadata.
 7. Run tests:
    - `pytest`
@@ -128,6 +129,8 @@ Refresh command: run `python scripts/train_and_save.py` to regenerate metrics an
 - Final narrative notebook with missed-upsets audit and curated upset stories.
 
 ## App Demo
+
+**[Try the live app →](https://t20radar.streamlit.app/)**
 
 ![T20 Upset Radar Streamlit MVP](docs/assets/streamlit_mvp_main.png)
 ![T20 Upset Radar Streamlit Walkthrough](docs/assets/streamlit_mvp_walkthrough.gif)
