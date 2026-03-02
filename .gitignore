@@ -30,6 +30,8 @@ models/*
 *.pkl
 *.pickle
 *.joblib
+!models/baseline_logistic_calibrated.joblib
+!models/baseline_logistic_calibrated_metadata.json
 *.h5
 *.pt
 *.pth

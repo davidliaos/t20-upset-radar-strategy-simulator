@@ -1,0 +1,35 @@
+{
+  "model_family": "logistic",
+  "feature_columns": [
+    "elo_team1",
+    "elo_team2",
+    "elo_diff",
+    "team1_form_5",
+    "team2_form_5",
+    "team1_form_10",
+    "team2_form_10",
+    "h2h_win_pct",
+    "team1",
+    "team2",
+    "match_stage",
+    "venue",
+    "toss_winner",
+    "toss_decision"
+  ],
+  "train_end_year": 2021,
+  "valid_end_year": 2023,
+  "is_calibrated": true,
+  "trained_at_utc": "2026-02-13T22:28:15.847664+00:00",
+  "valid_metrics": {
+    "roc_auc": 0.6319576147841044,
+    "log_loss": 0.6646158711553464,
+    "brier": 0.23620453843058858,
+    "positive_rate_pred": 0.39718076285240467
+  },
+  "test_metrics": {
+    "roc_auc": 0.6399447918427131,
+    "log_loss": 0.6681434673363342,
+    "brier": 0.23766545337247533,
+    "positive_rate_pred": 0.40212201591511937
+  }
+}

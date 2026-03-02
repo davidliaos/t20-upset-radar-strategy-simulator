@@ -889,7 +889,7 @@ def main() -> None:
             file_name=f"scenario_comparison_{scenario.team1}_vs_{scenario.team2}.json".replace(" ", "_"),
             mime="application/json",
         )
-        st.caption("Export for slides (CSV) or export for audit traces (JSON).")
+        st.caption("Use for presentations (CSV) or reviewer audits (JSON).")
 
         volatility = matchup_volatility_profile(df, scenario.team1, scenario.team2)
         st.divider()
@@ -1038,7 +1038,7 @@ def main() -> None:
                             )
                     with notes_col:
                         st.markdown("**Export**")
-                        st.caption("Export for slides (CSV) or export for audit traces (JSON).")
+                        st.caption("Export watchlist for slides (CSV) or audit traces (JSON).")
                         notes_col.download_button(
                             label="Export watchlist (CSV)",
                             data=display_watchlist.to_csv(index=False),
